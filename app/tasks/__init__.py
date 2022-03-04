@@ -78,6 +78,16 @@ def init_celery(config: Config):
                 'queue': f'{config.PROJECT_NAME}-{config.RUNTIME_ENV}-beat-queue'
             }
         },
+        # 黄金通知
+        f'{schedule_task_root}.gold_task.gold_price_remind': {
+            'task': f'{schedule_task_root}.gold_task.gold_price_remind',
+            'args': (),
+            'schedule': 5,
+            'options': {
+                # 该定时任务会被调度到这个队列
+                'queue': f'{config.PROJECT_NAME}-{config.RUNTIME_ENV}-beat-queue'
+            }
+        },
     }
 
     logger.info(
