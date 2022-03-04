@@ -98,7 +98,7 @@ def gold_price_remind():
     with CommitContext(session):
         gold_price_ls: List[GoldPrice] = session.query(
             GoldPrice
-        ).order_by(desc(GoldPrice.time)).limit(config.SAMPLE_COUNT)
+        ).order_by(desc(GoldPrice.time)).limit(config.SAMPLE_COUNT).all()
     # 判断最近的一条价格是否到达设置目标价格
     if not gold_price_ls:
         logger.info(f'empty gold price data')
