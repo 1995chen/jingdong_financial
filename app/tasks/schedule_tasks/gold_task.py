@@ -112,7 +112,7 @@ def gold_price_remind():
             textcard=TextCard(
                 title='黄金价格提醒',
                 description=(
-                    f'当前金价: <div class="highlight">{gold_price_ls[0].price}</div>\n'
+                    f'当前金价: <div class="highlight">{gold_price_ls[0].price}</div>'
                     f'达到目标价格: {config.TARGET_RISE_PRICE}'
                 ),
                 url='https://m.jdjygold.com/finance-gold/msjgold/homepage?orderSource=7'
@@ -127,7 +127,7 @@ def gold_price_remind():
             textcard=TextCard(
                 title='黄金价格提醒',
                 description=(
-                    f'当前金价: <div class="gray">{gold_price_ls[0].price}</div>\n'
+                    f'当前金价: <div class="gray">{gold_price_ls[0].price}</div>'
                     f'达到目标价格: {config.TARGET_FALL_PRICE}'
                 ),
                 url='https://m.jdjygold.com/finance-gold/msjgold/homepage?orderSource=7'
@@ -151,8 +151,9 @@ def gold_price_remind():
                 textcard=TextCard(
                     title='黄金价格上涨提醒',
                     description=(
-                        f'当前金价: <div class="highlight">{gold_price_ls[0].price}</div>\n'
-                        f'当前涨幅: <div class="highlight">{percent}%</div> 达到设定目标: {config.TARGET_RISE_PERCENT}%'
+                        f'当前金价: <div class="highlight">{gold_price_ls[0].price}</div>'
+                        f'当前涨幅: <div class="highlight">{percent}%</div>'
+                        f'达到设定目标: {config.TARGET_RISE_PERCENT}%'
                     ),
                     url='https://m.jdjygold.com/finance-gold/msjgold/homepage?orderSource=7'
                 )
@@ -167,8 +168,9 @@ def gold_price_remind():
                 textcard=TextCard(
                     title='黄金价格下跌提醒',
                     description=(
-                        f'当前金价: <div class="gray">{gold_price_ls[0].price}</div>\n'
-                        f'当前跌幅: <div class="highlight">{abs(percent)}%</div> 达到设定目标: {config.TARGET_RISE_PERCENT}%'
+                        f'当前金价: <div class="gray">{gold_price_ls[0].price}</div>'
+                        f'当前跌幅: <div class="highlight">{abs(percent)}%</div>'
+                        f'达到设定目标: {config.TARGET_RISE_PERCENT}%'
                     ),
                     url='https://m.jdjygold.com/finance-gold/msjgold/homepage?orderSource=7'
                 )
