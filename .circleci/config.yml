@@ -1,0 +1,147 @@
+version: 2.1
+
+executors:
+  docker-publisher:
+    docker:
+      - image: docker:19
+        auth:
+          username: $DOCKER_USER
+          password: $DOCKER_PASS
+
+jobs:
+  checkout_code:
+    docker:
+      - image: alpine:3.7
+    steps:
+      - run:
+          name: Avoid hosts unknown for github
+          command: |
+            mkdir -p ~/.ssh/ && echo -e "Host github.com\n\tStrictHostKeyChecking no\n" > ~/.ssh/config
+      - run:
+          name: List Files
+          command: |
+            pwd
+            ls -al
+      - checkout
+      - run:
+          name: List Files
+          command: |
+            pwd
+            ls -al
+      # 持久化root目录
+      - persist_to_workspace:
+          root: /root
+          paths:
+            - project
+
+  run_unittest:
+    docker:
+      - image: 1995chen/python:3.6.8-0.0.1
+        auth:
+          username: $DOCKER_USER
+          password: $DOCKER_PASS
+    steps:
+      # 挂载root目录
+      - attach_workspace:
+          at: /root
+      - run:
+          name: Install requirements.txt
+          command: |
+            pip install -r requirements.txt
+      - run:
+          name: Run Tests
+          command: |
+            cd tests
+            python -m unittest
+      # 持久化root目录
+      - persist_to_workspace:
+          root: /root
+          paths:
+            - project
+
+  build_image:
+    executor: docker-publisher
+    steps:
+      - attach_workspace:
+          at: /root
+      - setup_remote_docker:
+          version: 19.03.13
+      - run:
+          name: Build Image
+          command: |
+            echo "$DOCKER_PASS" | docker login -u "$DOCKER_USER" --password-stdin
+            docker build -f $(pwd)/docker/Dockerfile -t 1995chen/jingdong_financial:${CIRCLE_SHA1: 0: 7} $(pwd)
+            docker tag 1995chen/jingdong_financial:${CIRCLE_SHA1: 0: 7} 1995chen/jingdong_financial:latest
+      - run:
+          name: Archive Docker image
+          command: |
+            docker save -o image.tar 1995chen/jingdong_financial:${CIRCLE_SHA1: 0: 7}
+      - run:
+          name: Push Image
+          command: |
+            docker push 1995chen/jingdong_financial:${CIRCLE_SHA1: 0: 7}
+            docker push 1995chen/jingdong_financial:latest
+      # 持久化root目录
+      - persist_to_workspace:
+          root: /root
+          paths:
+            - project
+
+  tag_release_image:
+    executor: docker-publisher
+    steps:
+      - attach_workspace:
+          at: /root
+      - setup_remote_docker:
+          version: 19.03.13
+      - run:
+          name: Load archived Docker image
+          command: docker load -i image.tar
+      - run:
+          name: Tag & Push Image
+          command: |
+            echo "$DOCKER_PASS" | docker login -u "$DOCKER_USER" --password-stdin
+            docker tag 1995chen/jingdong_financial:${CIRCLE_SHA1: 0: 7} 1995chen/jingdong_financial:$CIRCLE_TAG
+            docker push 1995chen/jingdong_financial:$CIRCLE_TAG
+
+workflows:
+  staging:
+    jobs:
+      - checkout_code
+      - run_unittest:
+          requires:
+            - checkout_code
+      - build_image:
+          requires:
+            - run_unittest
+          context:
+            - docker-hub-creds
+  production:
+    jobs:
+      - checkout_code:
+          # this yaml anchor is setting these values to "filters-production"
+          filters: &filters-production
+            branches:
+              ignore: /.*/
+            tags:
+              only: /.*/
+      - run_unittest:
+          requires:
+            - checkout_code
+          # this is calling the previously
+          filters:
+            <<: *filters-production
+      - build_image:
+          requires:
+            - run_unittest
+          context:
+            - docker-hub-creds
+          filters:
+            <<: *filters-production
+      - tag_release_image:
+          requires:
+            - build_image
+          context:
+            - docker-hub-creds
+          filters:
+            <<: *filters-production
