@@ -21,6 +21,7 @@ from template_pagination import Pagination
 from template_migration import Migration
 from template_json_encoder import TemplateJSONEncoder
 from template_apollo import ApolloClient
+from work_wechat import WorkWeChat
 
 from app.constants.enum import SysCMD
 
@@ -75,6 +76,12 @@ class Config:
     # 阿波罗配置
     APOLLO_APP_ID: str = 'jingdong_financial'
     APOLLO_CONFIG_SERVER_URL: str = 'http://apollo.local.domain:13043'
+    # 企业微信 CORP_ID
+    CORP_ID: str = ''
+    # 企业微信 CORP_SECRET
+    CORP_SECRET: str = ''
+    # 企业微信应用 AGENT_ID
+    AGENT_ID: int = ''
     # 京东金融API配置
     JD_FINANCE_API_URL: str = "https://ms.jr.jd.com/gw/generic/hj/h5/m/latestPrice"
     # header信息
@@ -86,6 +93,16 @@ class Config:
     )
     # params信息
     JD_FINANCE_API_PARAMS: str = json.dumps({})
+    # 样本数量[用于计算上涨下跌幅度]
+    SAMPLE_COUNT: int = 20
+    # 上涨幅度超过该值通知[百分比]
+    TARGET_RISE_PERCENT: float = 2.0
+    # 下跌幅度超过该值通知[百分比]
+    TARGET_FALL_PERCENT: float = 2.0
+    # 金价高于该值通知[具体价格]
+    TARGET_RISE_PRICE: float = 400.0
+    # 金价低于该值通知[具体价格]
+    TARGET_FALL_PRICE: float = 365.0
 
 
 class MainDBSession(scoped_session, Session):
@@ -225,6 +242,11 @@ def bind_config(apollo_config: ApolloClient) -> Config:
     return _config
 
 
+@autoparams()
+def init_work_wechat(config: Config) -> WorkWeChat:
+    return WorkWeChat(corpid=config.CORP_ID, corpsecret=config.CORP_SECRET)
+
+
 def bind(binder):
     from app.tasks import init_celery
     # 初始化阿波罗
@@ -251,3 +273,5 @@ def bind(binder):
     binder.bind_to_constructor(Migration, init_migrate)
     # 增加Json序列化Encoder
     binder.bind_to_constructor(TemplateJSONEncoder, init_json_encoder)
+    # 初始化企业微信
+    binder.bind_to_constructor(WorkWeChat, init_work_wechat)
