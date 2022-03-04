@@ -1,0 +1,91 @@
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: gold
+spec:
+  accessModes:
+  - ReadWriteOnce
+  resources:
+    requests:
+      storage: 10Gi
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: jingdong_financial
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: jingdong_financial
+  template:
+    metadata:
+      labels:
+        app: jingdong_financial
+    spec:
+      containers:
+      - name: flask-service
+        env:
+        - name: RUNTIME_ENV
+          value: 'PROD'
+        - name: TZ
+          value: "Asia/Shanghai"
+        image: 1995chen/jingdong_financial:latest
+        ports:
+        - containerPort: 8080
+        volumeMounts:
+        - mountPath: /opt/application/logs
+          name: data
+          subPath: logs
+        livenessProbe:
+          httpGet:
+            path: /api/health
+            port: 8080
+            httpHeaders:
+            - name: LivenessProbe-Header
+              value: LivenessProbe
+          initialDelaySeconds: 5
+          periodSeconds: 3
+      restartPolicy: Always
+      volumes:
+      - name: data
+        persistentVolumeClaim:
+          claimName: gold
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: jingdong_financial
+spec:
+  ports:
+  - port: 80
+    targetPort: 8080
+  selector:
+    app: jingdong_financial
+  type: ClusterIP
+
+---
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+  name: gold.local.domain
+  annotations:
+    # redirect 时token过长导致502
+    nginx.ingress.kubernetes.io/proxy-buffer-size: "16k"
+    nginx.ingress.kubernetes.io/rewrite-target: /
+    nginx.ingress.kubernetes.io/use-regex: "true"
+spec:
+  rules:
+  - host: gold.local.domain
+    http:
+      paths:
+      - backend:
+          serviceName: jingdong_financial
+          servicePort: 80
+  tls:
+  - hosts:
+    - gold.local.domain
+    secretName: gold

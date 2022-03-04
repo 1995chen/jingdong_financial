@@ -1,0 +1,10 @@
+/opt/application/logs/access.log {
+  rotate 7
+  daily
+  dateext
+  dateformat .%Y%m%d
+  compress
+  copytruncate
+  missingok
+  notifempty
+}

@@ -1,1 +1,1 @@
-# jingdong_fnancial
+# jingdong_financial
