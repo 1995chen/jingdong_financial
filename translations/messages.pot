@@ -1,18 +1,17 @@
-# English (United States) translations for PROJECT.
+# Translations template for PROJECT.
 # Copyright (C) 2022 ORGANIZATION
 # This file is distributed under the same license as the PROJECT project.
 # FIRST AUTHOR <EMAIL@ADDRESS>, 2022.
 #
+#, fuzzy
 msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
 "POT-Creation-Date: 2022-03-04 17:31+0800\n"
-"PO-Revision-Date: 2022-03-04 17:32+0800\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
-"Language: en_US\n"
-"Language-Team: en_US <LL@li.org>\n"
-"Plural-Forms: nplurals=2; plural=(n != 1)\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -20,38 +19,38 @@ msgstr ""
 
 #: app/constants/code_map.py:12
 msgid "成功"
-msgstr "Success"
+msgstr ""
 
 #: app/constants/code_map.py:14
 msgid "客户端发送了不合法的请求"
-msgstr "The client sent an illegal request"
+msgstr ""
 
 #: app/constants/code_map.py:15
 #, python-format
 msgid "参数 [%s] 类型错误，应为 [%s]"
-msgstr "The parameter [%s] type is wrong, it should be [%s]"
+msgstr ""
 
 #: app/constants/code_map.py:16
 #, python-format
 msgid "不合法的参数: %s"
-msgstr "Invalid parameter: %s"
+msgstr ""
 
 #: app/constants/code_map.py:17
 #, python-format
 msgid "关键参数缺失: [%s]"
-msgstr "Missing key parameters: [%s]"
+msgstr ""
 
 #: app/constants/code_map.py:19
 msgid "身份验证失败"
-msgstr "Authentication failed"
+msgstr ""
 
 #: app/constants/code_map.py:21
 msgid "资源未找到"
-msgstr "Resource not found"
+msgstr ""
 
 #: app/constants/code_map.py:23
 msgid "服务器未知异常"
-msgstr "Unknown server error"
+msgstr ""
 
 #: app/handlers/error_handler.py:153
 msgid "其它用户或系统正在操作，请稍后再试"

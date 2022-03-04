@@ -1,14 +1,14 @@
 # Chinese (Simplified, China) translations for PROJECT.
-# Copyright (C) 2021 ORGANIZATION
+# Copyright (C) 2022 ORGANIZATION
 # This file is distributed under the same license as the PROJECT project.
-# FIRST AUTHOR <EMAIL@ADDRESS>, 2021.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2022.
 #
 msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2021-08-16 16:26+0800\n"
-"PO-Revision-Date: 2021-08-16 16:26+0800\n"
+"POT-Creation-Date: 2022-03-04 17:31+0800\n"
+"PO-Revision-Date: 2022-03-04 17:33+0800\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language: zh_Hans_CN\n"
 "Language-Team: zh_Hans_CN <LL@li.org>\n"
@@ -16,94 +16,92 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Generated-By: Babel 2.7.0\n"
-
-#: app/constants/code_map.py:7
-msgid "成功"
-msgstr "成功"
-
-#: app/constants/code_map.py:8
-msgid "客户端发送了不合法的请求"
-msgstr "客户端发送了不合法的请求"
-
-#: app/constants/code_map.py:9
-#, python-format
-msgid "参数 [%s] 类型错误，应为 [%s]"
-msgstr "参数 [%s] 类型错误，应为 [%s]"
-
-#: app/constants/code_map.py:10
-#, python-format
-msgid "不合法的枚举参数 [%s], 可选值： [%s]"
-msgstr "不合法的枚举参数 [%s], 可选值： [%s]"
-
-#: app/constants/code_map.py:11
-msgid "不合法的JSON字符串"
-msgstr "不合法的JSON字符串"
+"Generated-By: Babel 2.9.1\n"
 
 #: app/constants/code_map.py:12
-#, python-format
-msgid "不合法的参数: %s"
-msgstr "不合法的参数: %s"
-
-#: app/constants/code_map.py:13
-msgid "记录已存在"
-msgstr "记录已存在"
+msgid "成功"
+msgstr ""
 
 #: app/constants/code_map.py:14
-#, python-format
-msgid "[%s] 已存在"
-msgstr "[%s] 已存在"
+msgid "客户端发送了不合法的请求"
+msgstr ""
 
 #: app/constants/code_map.py:15
 #, python-format
-msgid "[%s] 不符合正则规则：[%s]"
-msgstr "[%s] 不符合正则规则：[%s]"
+msgid "参数 [%s] 类型错误，应为 [%s]"
+msgstr ""
 
 #: app/constants/code_map.py:16
-msgid "此申请已经被处理，请刷新查看最新状态"
-msgstr "此申请已经被处理，请刷新查看最新状态"
+#, python-format
+msgid "不合法的参数: %s"
+msgstr ""
 
 #: app/constants/code_map.py:17
 #, python-format
 msgid "关键参数缺失: [%s]"
-msgstr "关键参数缺失: [%s]"
-
-#: app/constants/code_map.py:18
-#, python-format
-msgid ""
-"数据库连接失败!\n"
-"错误信息:\n"
-"%s"
 msgstr ""
-"数据库连接失败!\n"
-"错误信息:\n"
-"%s"
 
 #: app/constants/code_map.py:19
-msgid "记录未找到，可能已被删除"
-msgstr "记录未找到，可能已被删除"
-
-#: app/constants/code_map.py:20
-msgid "请先登录"
-msgstr "请先登录"
+msgid "身份验证失败"
+msgstr ""
 
 #: app/constants/code_map.py:21
-msgid "用户未找到"
-msgstr "用户未找到"
-
-#: app/constants/code_map.py:22
-msgid "抱歉，您没有此操作的权限"
-msgstr "抱歉，您没有此操作的权限"
+msgid "资源未找到"
+msgstr ""
 
 #: app/constants/code_map.py:23
-msgid "身份验证失败"
-msgstr "身份验证失败"
-
-#: app/constants/code_map.py:24
-msgid "打点模块发送失败"
-msgstr "打点模块发送失败"
-
-#: app/constants/code_map.py:26
 msgid "服务器未知异常"
-msgstr "服务器未知异常"
+msgstr ""
+
+#: app/handlers/error_handler.py:153
+msgid "其它用户或系统正在操作，请稍后再试"
+msgstr ""
+
+#: app/handlers/error_handler.py:157
+msgid "获取数据库锁失败，其它用户或系统正在操作，请稍后再试"
+msgstr ""
+
+#: app/handlers/error_handler.py:161
+#, python-format
+msgid "数据数据太长，超过了列的长度限制。具体报错：%s"
+msgstr ""
+
+#: app/handlers/error_handler.py:165
+#, python-format
+msgid "提交了数据库不支持的字符。具体报错：%s"
+msgstr ""
+
+#: app/handlers/error_handler.py:169
+#, python-format
+msgid "该表已存在。具体报错：%s"
+msgstr ""
+
+#: app/handlers/error_handler.py:173
+#, python-format
+msgid "记录重复。具体报错：%s"
+msgstr ""
+
+#: app/handlers/error_handler.py:177
+#, python-format
+msgid "建表时发生错误。具体报错：%s"
+msgstr ""
+
+#: app/handlers/error_handler.py:181
+#, python-format
+msgid "查询了不存在的列。具体报错：%s"
+msgstr ""
+
+#: app/handlers/error_handler.py:185
+#, python-format
+msgid "表不存在。具体报错：%s"
+msgstr ""
+
+#: app/handlers/error_handler.py:190
+#, python-format
+msgid "数据库链接异常，请稍后再试。具体报错：%s"
+msgstr ""
+
+#: app/resources/test.py:56
+msgid "sssss"
+msgstr ""
 
