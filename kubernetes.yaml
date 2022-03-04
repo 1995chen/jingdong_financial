@@ -14,16 +14,16 @@ spec:
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: jingdong_financial
+  name: jingdong-financial
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: jingdong_financial
+      app: jingdong-financial
   template:
     metadata:
       labels:
-        app: jingdong_financial
+        app: jingdong-financial
     spec:
       containers:
       - name: flask-service
@@ -58,13 +58,13 @@ spec:
 apiVersion: v1
 kind: Service
 metadata:
-  name: jingdong_financial
+  name: jingdong-financial
 spec:
   ports:
   - port: 80
     targetPort: 8080
   selector:
-    app: jingdong_financial
+    app: jingdong-financial
   type: ClusterIP
 
 ---
@@ -83,7 +83,7 @@ spec:
     http:
       paths:
       - backend:
-          serviceName: jingdong_financial
+          serviceName: jingdong-financial
           servicePort: 80
   tls:
   - hosts:
