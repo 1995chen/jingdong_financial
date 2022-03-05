@@ -25,3 +25,4 @@ celery-redbeat==2.0.0
 sqlalchemy_utils==0.37.8
 python-redis-lock==3.7.0
 WorkWeChatSDK==20200430
+pymannkendall==1.4.2

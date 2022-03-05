@@ -6,6 +6,7 @@ from typing import Dict, Any, List
 
 import requests
 import inject
+import pymannkendall
 import template_logging
 from celery import Celery
 from template_transaction import CommitContext
@@ -104,7 +105,7 @@ def gold_price_remind():
         logger.info(f'empty gold price data')
         return
     # 金价超过目标价格
-    if gold_price_ls[0].price >= config.TARGET_RISE_PRICE:
+    if gold_price_ls[0].price >= config.RISE_TO_TARGET_PRICE:
         wechat.message_send(
             agentid=config.AGENT_ID,
             msgtype=MsgType.TEXTCARD,
@@ -113,13 +114,13 @@ def gold_price_remind():
                 title='黄金价格提醒',
                 description=(
                     f'当前金价: <div class="highlight">{gold_price_ls[0].price}</div>'
-                    f'达到目标价格: {config.TARGET_RISE_PRICE}'
+                    f'达到目标价格: {config.RISE_TO_TARGET_PRICE}'
                 ),
                 url='https://m.jdjygold.com/finance-gold/msjgold/homepage?orderSource=7'
             )
         )
     # 金价低于目标价格
-    if gold_price_ls[0].price <= config.TARGET_FALL_PRICE:
+    if gold_price_ls[0].price <= config.FALL_TO_TARGET_PRICE:
         wechat.message_send(
             agentid=config.AGENT_ID,
             msgtype=MsgType.TEXTCARD,
@@ -128,7 +129,7 @@ def gold_price_remind():
                 title='黄金价格提醒',
                 description=(
                     f'当前金价: <div class="gray">{gold_price_ls[0].price}</div>'
-                    f'达到目标价格: {config.TARGET_FALL_PRICE}'
+                    f'达到目标价格: {config.FALL_TO_TARGET_PRICE}'
                 ),
                 url='https://m.jdjygold.com/finance-gold/msjgold/homepage?orderSource=7'
             )
@@ -136,14 +137,30 @@ def gold_price_remind():
     # 仅一条数据,不计算涨跌幅
     if len(gold_price_ls) <= 2:
         return
-    # 计算涨跌幅度
-    percent: float = round(
-        100 * float(gold_price_ls[0].price - gold_price_ls[-1].price) / gold_price_ls[-1].price,
-        4
-    )
-    # 涨幅
-    if percent > 0:
-        if percent >= config.TARGET_RISE_PERCENT:
+    # 取出金额
+    price_values: List[float] = [_i.price for _i in gold_price_ls]
+    # 取数据时用的时间倒序,这里要反转数组[只取近期的20组数据进行趋势预测]
+    time_sorted_asc = list(reversed(price_values))
+    # 趋势测试
+    test_res: Any = pymannkendall.original_test(time_sorted_asc)
+    logger.info(f"test_res is {test_res}")
+    # 趋势上涨
+    if test_res.h and test_res.trend == 'increasing':
+        min_price: float = min(price_values)
+        # 计算在该样本内当前金额与最小金额的差值
+        difference_price: float = price_values[0] - min_price
+        # 计算百分比
+        percent: float = round(
+            100 * float(difference_price) / min_price,
+            4
+        )
+        logger.info(
+            f"\n金价趋势上涨\n"
+            f"当前金价: {price_values[0]}\n"
+            f"上涨金额: {round(difference_price, 2)}\n"
+            f"上涨百分比: {percent}%\n"
+        )
+        if difference_price >= config.TARGET_RISE_PRICE:
             wechat.message_send(
                 agentid=config.AGENT_ID,
                 msgtype=MsgType.TEXTCARD,
@@ -151,16 +168,31 @@ def gold_price_remind():
                 textcard=TextCard(
                     title='黄金价格上涨提醒',
                     description=(
-                        f'当前金价: <div class="highlight">{gold_price_ls[0].price}</div>'
-                        f'当前涨幅: <div class="highlight">{percent}%</div>'
-                        f'达到设定目标: {config.TARGET_RISE_PERCENT}%'
+                        f'当前金价: <div class="highlight">{price_values[0]}</div>'
+                        f'上涨金额: <div class="highlight">{difference_price}</div>'
+                        f'上涨百分比: <div class="highlight">{percent}%</div>'
+                        f'达到设定目标: {config.TARGET_RISE_PRICE}'
                     ),
                     url='https://m.jdjygold.com/finance-gold/msjgold/homepage?orderSource=7'
                 )
             )
-    # 跌幅
-    if percent < 0:
-        if percent >= config.TARGET_FALL_PERCENT:
+    # 趋势下跌
+    if test_res.h and test_res.trend == 'decreasing':
+        max_price: float = max(price_values)
+        # 计算在该样本内当前金额与最小金额的差值
+        difference_price: float = price_values[0] - max_price
+        # 计算百分比
+        percent: float = round(
+            100 * float(difference_price) / max_price,
+            4
+        )
+        logger.info(
+            f"\n金价趋势下跌\n"
+            f"当前金价: {price_values[0]}\n"
+            f"下跌金额: {round(difference_price, 2)}\n"
+            f"下跌百分比: {percent}%\n"
+        )
+        if abs(difference_price) >= config.TARGET_FALL_PRICE:
             wechat.message_send(
                 agentid=config.AGENT_ID,
                 msgtype=MsgType.TEXTCARD,
@@ -169,8 +201,9 @@ def gold_price_remind():
                     title='黄金价格下跌提醒',
                     description=(
                         f'当前金价: <div class="gray">{gold_price_ls[0].price}</div>'
-                        f'当前跌幅: <div class="highlight">{abs(percent)}%</div>'
-                        f'达到设定目标: {config.TARGET_RISE_PERCENT}%'
+                        f'下跌金额: <div class="gray">{difference_price}</div>'
+                        f'下跌百分比: <div class="gray">{percent}%</div>'
+                        f'达到设定目标: {config.TARGET_FALL_PRICE}'
                     ),
                     url='https://m.jdjygold.com/finance-gold/msjgold/homepage?orderSource=7'
                 )

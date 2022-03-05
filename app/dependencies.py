@@ -95,14 +95,14 @@ class Config:
     JD_FINANCE_API_PARAMS: str = json.dumps({})
     # 样本数量[用于计算上涨下跌幅度]
     SAMPLE_COUNT: int = 20
-    # 上涨幅度超过该值通知[百分比]
-    TARGET_RISE_PERCENT: float = 2.0
-    # 下跌幅度超过该值通知[百分比]
-    TARGET_FALL_PERCENT: float = 2.0
+    # 上涨幅度超过该值通知[金额]
+    TARGET_RISE_PRICE: float = 2.0
+    # 下跌幅度超过该值通知[金额]
+    TARGET_FALL_PRICE: float = 2.0
     # 金价高于该值通知[具体价格]
-    TARGET_RISE_PRICE: float = 400.0
+    RISE_TO_TARGET_PRICE: float = 400.0
     # 金价低于该值通知[具体价格]
-    TARGET_FALL_PRICE: float = 365.0
+    FALL_TO_TARGET_PRICE: float = 365.0
 
 
 class MainDBSession(scoped_session, Session):
