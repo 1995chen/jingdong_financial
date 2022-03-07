@@ -103,6 +103,10 @@ class Config:
     RISE_TO_TARGET_PRICE: float = 400.0
     # 金价低于该值通知[具体价格]
     FALL_TO_TARGET_PRICE: float = 365.0
+    # 设置同类型通知在多长时间范围内限制重复推送次数[秒]
+    DUPLICATE_NOTIFY_TIME_LIMIT: int = 90
+    # 设置同类型通知重复推送多少次
+    DUPLICATE_NOTIFY_TIMES: int = 3
 
 
 class MainDBSession(scoped_session, Session):

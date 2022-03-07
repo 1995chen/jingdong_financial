@@ -15,7 +15,7 @@ logger = template_logging.getLogger(__name__)
 redis_cache: CacheRedis = inject.instance(CacheRedis)
 
 
-def get_cache_handler(key: str, timeout: Optional[int], **_user_kwargs: Any) -> Any:
+def get_cache_handler(key: str, timeout: Optional[int] = None, **_user_kwargs: Any) -> Any:
     """
     获得缓存的handler
     """
@@ -26,7 +26,7 @@ def get_cache_handler(key: str, timeout: Optional[int], **_user_kwargs: Any) -> 
     return _value
 
 
-def store_cache_handler(key: str, value: Any, timeout: Optional[int], **_user_kwargs: Any) -> Any:
+def store_cache_handler(key: str, value: Any, timeout: Optional[int] = None, **_user_kwargs: Any) -> Any:
     """
     存储cache的handler
     """

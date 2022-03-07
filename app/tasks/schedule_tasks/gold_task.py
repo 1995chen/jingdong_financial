@@ -2,7 +2,7 @@
 
 
 import json
-from typing import Dict, Any, List
+from typing import Dict, Any, List, Optional, Tuple
 
 import requests
 import inject
@@ -14,8 +14,9 @@ from redis_lock import Lock
 from sqlalchemy import desc
 from work_wechat import WorkWeChat, MsgType, TextCard
 
-from app.dependencies import Config, MainDBSession, CacheRedis
+from app.dependencies import Config, MainDBSession, CacheRedis, Cache
 from app.models import GoldPrice
+from app.constants.enum import GoldPriceState
 
 logger = template_logging.getLogger(__name__)
 celery_app: Celery = inject.instance(Celery)
@@ -85,6 +86,28 @@ def sync_gold_price():
     logger.info(f'run sync_gold_price done')
 
 
+def skip_notify(notify_key: GoldPriceState) -> Tuple[bool, int]:
+    """
+    判断是否需要跳过本次通知
+    """
+    # 获取cache
+    cache: Cache = inject.instance(Cache)
+    # 获取配置
+    config: Config = inject.instance(Config)
+    # 获得重复推送次数
+    _cache_bytes: Optional[bytes] = cache.get_cache(f"{notify_key}")
+    _notify_times: int = int(_cache_bytes.decode()) if _cache_bytes else 0
+    if _notify_times >= config.DUPLICATE_NOTIFY_TIMES:
+        return True, _notify_times
+    return False, _notify_times
+
+
+def save_notify_times(notify_key: GoldPriceState, notify_times: int) -> None:
+    # 获取cache
+    cache: Cache = inject.instance(Cache)
+    cache.store_cache(f"{notify_key}", notify_times)
+
+
 @celery_app.task(ignore_result=True, time_limit=600)
 def gold_price_remind():
     """
@@ -94,7 +117,7 @@ def gold_price_remind():
     config: Config = inject.instance(Config)
     wechat: WorkWeChat = inject.instance(WorkWeChat)
 
-    # 保存数据
+    # 查询数据
     session: MainDBSession = inject.instance(MainDBSession)
     with CommitContext(session):
         gold_price_ls: List[GoldPrice] = session.query(
@@ -104,109 +127,94 @@ def gold_price_remind():
     if not gold_price_ls:
         logger.info(f'empty gold price data')
         return
+    # 定义推送映射
+    _notify_mapping: Dict[GoldPriceState, TextCard] = dict()
     # 金价超过目标价格
     if gold_price_ls[0].price >= config.RISE_TO_TARGET_PRICE:
-        wechat.message_send(
-            agentid=config.AGENT_ID,
-            msgtype=MsgType.TEXTCARD,
-            touser=('@all',),
-            textcard=TextCard(
-                title='黄金价格提醒',
-                description=(
-                    f'当前金价: <div class="highlight">{gold_price_ls[0].price}</div>'
-                    f'达到目标价格: {config.RISE_TO_TARGET_PRICE}'
-                ),
-                url='https://m.jdjygold.com/finance-gold/msjgold/homepage?orderSource=7'
-            )
+        _notify_mapping[GoldPriceState.RISE_TO_TARGET_PRICE] = TextCard(
+            title='黄金价格提醒',
+            description=(
+                f'当前金价: <div class="highlight">{gold_price_ls[0].price}</div>'
+                f'达到目标价格: {config.RISE_TO_TARGET_PRICE}'
+            ),
+            url='https://m.jdjygold.com/finance-gold/msjgold/homepage?orderSource=7'
         )
     # 金价低于目标价格
     if gold_price_ls[0].price <= config.FALL_TO_TARGET_PRICE:
-        wechat.message_send(
-            agentid=config.AGENT_ID,
-            msgtype=MsgType.TEXTCARD,
-            touser=('@all',),
-            textcard=TextCard(
-                title='黄金价格提醒',
-                description=(
-                    f'当前金价: <div class="gray">{gold_price_ls[0].price}</div>'
-                    f'达到目标价格: {config.FALL_TO_TARGET_PRICE}'
-                ),
-                url='https://m.jdjygold.com/finance-gold/msjgold/homepage?orderSource=7'
-            )
+        _notify_mapping[GoldPriceState.FALL_TO_TARGET_PRICE] = TextCard(
+            title='黄金价格提醒',
+            description=(
+                f'当前金价: <div class="gray">{gold_price_ls[0].price}</div>'
+                f'达到目标价格: {config.FALL_TO_TARGET_PRICE}'
+            ),
+            url='https://m.jdjygold.com/finance-gold/msjgold/homepage?orderSource=7'
         )
     # 仅一条数据,不计算涨跌幅
-    if len(gold_price_ls) <= 2:
-        return
-    # 取出金额
-    price_values: List[float] = [_i.price for _i in gold_price_ls]
-    # 取数据时用的时间倒序,这里要反转数组[只取近期的20组数据进行趋势预测]
-    time_sorted_asc = list(reversed(price_values))
-    # 趋势测试
-    test_res: Any = pymannkendall.original_test(time_sorted_asc)
-    logger.info(f"test_res is {test_res}")
-    # 趋势上涨
-    if test_res.h and test_res.trend == 'increasing':
-        min_price: float = min(price_values)
-        # 计算在该样本内当前金额与最小金额的差值
-        difference_price: float = price_values[0] - min_price
-        # 计算百分比
-        percent: float = round(
-            100 * float(difference_price) / min_price,
-            4
-        )
-        logger.info(
-            f"\n金价趋势上涨\n"
-            f"当前金价: {price_values[0]}\n"
-            f"上涨金额: {round(difference_price, 2)}\n"
-            f"上涨百分比: {percent}%\n"
-        )
-        if difference_price >= config.TARGET_RISE_PRICE:
-            wechat.message_send(
-                agentid=config.AGENT_ID,
-                msgtype=MsgType.TEXTCARD,
-                touser=('@all',),
-                textcard=TextCard(
+    if len(gold_price_ls) > 2:
+        # 取出金额
+        price_values: List[float] = [_i.price for _i in gold_price_ls]
+        # 取数据时用的时间倒序,这里要反转数组[只取近期的20组数据进行趋势预测]
+        time_sorted_asc = list(reversed(price_values))
+        # 趋势测试
+        test_res: Any = pymannkendall.original_test(time_sorted_asc)
+        logger.info(f"test_res is {test_res}")
+        # 趋势上涨
+        if test_res.h and test_res.trend == 'increasing':
+            min_price: float = min(price_values)
+            # 计算在该样本内当前金额与最小金额的差值
+            difference_price: float = price_values[0] - min_price
+            # 计算百分比
+            percent: float = round(
+                100 * float(difference_price) / min_price,
+                4
+            )
+            logger.info(f"金价趋势上涨 当前金价: {price_values[0]} 上涨金额: {round(difference_price, 2)} 上涨百分比: {percent}%")
+            if difference_price >= config.TARGET_RISE_PRICE:
+                _notify_mapping[GoldPriceState.REACH_TARGET_RISE_PRICE] = TextCard(
                     title='黄金价格上涨提醒',
                     description=(
-                        f'当前金价: <div class="highlight">{price_values[0]}</div>'
-                        f'上涨金额: <div class="highlight">{difference_price}</div>'
+                        f'当前金价: <div class="highlight">{round(price_values[0], 4)}</div>'
+                        f'上涨金额: <div class="highlight">{round(difference_price, 4)}</div>'
                         f'上涨百分比: <div class="highlight">{percent}%</div>'
                         f'达到设定目标: {config.TARGET_RISE_PRICE}'
                     ),
                     url='https://m.jdjygold.com/finance-gold/msjgold/homepage?orderSource=7'
                 )
+        # 趋势下跌
+        if test_res.h and test_res.trend == 'decreasing':
+            max_price: float = max(price_values)
+            # 计算在该样本内当前金额与最小金额的差值
+            difference_price: float = price_values[0] - max_price
+            # 计算百分比
+            percent: float = round(
+                100 * float(difference_price) / max_price,
+                4
             )
-    # 趋势下跌
-    if test_res.h and test_res.trend == 'decreasing':
-        max_price: float = max(price_values)
-        # 计算在该样本内当前金额与最小金额的差值
-        difference_price: float = price_values[0] - max_price
-        # 计算百分比
-        percent: float = round(
-            100 * float(difference_price) / max_price,
-            4
-        )
-        logger.info(
-            f"\n金价趋势下跌\n"
-            f"当前金价: {price_values[0]}\n"
-            f"下跌金额: {round(difference_price, 2)}\n"
-            f"下跌百分比: {percent}%\n"
-        )
-        if abs(difference_price) >= config.TARGET_FALL_PRICE:
-            wechat.message_send(
-                agentid=config.AGENT_ID,
-                msgtype=MsgType.TEXTCARD,
-                touser=('@all',),
-                textcard=TextCard(
+            logger.info(f"金价趋势下跌 当前金价: {price_values[0]} 下跌金额: {round(difference_price, 2)} 下跌百分比: {percent}%")
+            if abs(difference_price) >= config.TARGET_FALL_PRICE:
+                _notify_mapping[GoldPriceState.REACH_TARGET_FALL_PRICE] = TextCard(
                     title='黄金价格下跌提醒',
                     description=(
-                        f'当前金价: <div class="gray">{gold_price_ls[0].price}</div>'
-                        f'下跌金额: <div class="gray">{difference_price}</div>'
+                        f'当前金价: <div class="gray">{round(gold_price_ls[0].price, 4)}</div>'
+                        f'下跌金额: <div class="gray">{round(difference_price, 4)}</div>'
                         f'下跌百分比: <div class="gray">{percent}%</div>'
                         f'达到设定目标: {config.TARGET_FALL_PRICE}'
                     ),
                     url='https://m.jdjygold.com/finance-gold/msjgold/homepage?orderSource=7'
                 )
-            )
 
+    # 准备推送
+    for _state, _text_card in _notify_mapping.items():
+        _skip, _notify_times = skip_notify(_state)
+        if _skip:
+            logger.info(f"skip notify, _notify_times is {_notify_times}")
+            continue
+        _notify_times = _notify_times + 1
+        wechat.message_send(
+            agentid=config.AGENT_ID,
+            msgtype=MsgType.TEXTCARD,
+            touser=('@all',),
+            textcard=_text_card
+        )
+        save_notify_times(_state, _notify_times)
     logger.info(f'run gold_price_remind done')
