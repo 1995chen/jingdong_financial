@@ -47,7 +47,7 @@ class Config:
     CELERY_BACKEND: str = None
     REDBEAT_REDIS_URL: str = None
     # celery beat 锁超时时间
-    REDBEAT_LOCK_TIMEOUT: int = 600
+    REDBEAT_LOCK_TIMEOUT: int = 60
     # 定时任务并发进程数
     BEAT_WORKER_NUM: int = 2
     # worker并发进程数
