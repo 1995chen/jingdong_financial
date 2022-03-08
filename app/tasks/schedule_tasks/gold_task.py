@@ -86,16 +86,28 @@ def sync_gold_price():
     logger.info(f'run sync_gold_price done')
 
 
+def get_notify_cache_key(notify_key: GoldPriceState) -> str:
+    """
+    @param: notify_key 通知类型
+    根据GoldPriceState返回本次通知缓存key
+    """
+    # 获取配置
+    config: Config = inject.instance(Config)
+    return f"{config.PROJECT_NAME}-{config.RUNTIME_ENV}-{notify_key}"
+
+
 def skip_notify(notify_key: GoldPriceState) -> Tuple[bool, int]:
     """
+    @param: notify_key 通知类型
     判断是否需要跳过本次通知
     """
     # 获取cache
     cache: Cache = inject.instance(Cache)
     # 获取配置
     config: Config = inject.instance(Config)
+    cache_key: str = get_notify_cache_key(notify_key)
     # 获得重复推送次数
-    _cache_bytes: Optional[bytes] = cache.get_cache(f"{notify_key}")
+    _cache_bytes: Optional[bytes] = cache.get_cache(cache_key)
     _notify_times: int = int(_cache_bytes.decode()) if _cache_bytes else 0
     if _notify_times >= config.DUPLICATE_NOTIFY_TIMES:
         return True, _notify_times
@@ -103,9 +115,17 @@ def skip_notify(notify_key: GoldPriceState) -> Tuple[bool, int]:
 
 
 def save_notify_times(notify_key: GoldPriceState, notify_times: int) -> None:
+    """
+    @param: notify_key 通知类型
+    @param: notify_times 当前重复通知多少次
+    保存重复通知次数
+    """
     # 获取cache
     cache: Cache = inject.instance(Cache)
-    cache.store_cache(f"{notify_key}", notify_times)
+    # 获取配置
+    config: Config = inject.instance(Config)
+    cache_key: str = get_notify_cache_key(notify_key)
+    cache.store_cache(cache_key, notify_times, config.DUPLICATE_NOTIFY_TIME_LIMIT)
 
 
 @celery_app.task(ignore_result=True, time_limit=600)
