@@ -122,7 +122,7 @@ def init_celery(config: Config):
             # 该任务可以不用定义,这里定义作为Example
             f'{async_task_root}.test_task.do_test': {
                 'queue': f'{config.PROJECT_NAME}-{config.RUNTIME_ENV}-queue',
-                'routing_key': f'{config.PROJECT_NAME}-routing'
+                'routing_key': f'{config.PROJECT_NAME}-{config.RUNTIME_ENV}-routing'
             },
         },
         # 默认队列
