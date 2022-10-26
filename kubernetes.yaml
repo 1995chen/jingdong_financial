@@ -1,5 +1,36 @@
 ---
 apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: synology-music
+spec:
+  capacity:
+    storage: 50Gi
+  volumeMode: Filesystem
+  accessModes:
+    - ReadWriteOnce
+  persistentVolumeReclaimPolicy: Retain
+  nfs:
+    path: /volume1/music
+    server: 192.168.0.206
+
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: synology-music
+spec:
+  accessModes:
+  - ReadWriteOnce
+  resources:
+    requests:
+      storage: 50Gi
+  storageClassName: ""
+  volumeMode: Filesystem
+  volumeName: synology-music
+
+---
+apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
   name: gold
@@ -32,6 +63,12 @@ spec:
           value: 'PROD'
         - name: TZ
           value: "Asia/Shanghai"
+        - name: HTTP_PROXY
+          value: http://127.0.0.1:7610
+        - name: HTTPS_PROXY
+          value: https://127.0.0.1:7610
+        - name: NO_PROXY
+          value: "local.domain,*.local.domain,ms.jr.jd.com,*.jd.com"
         image: 1995chen/jingdong_financial:latest
         ports:
         - containerPort: 8080
@@ -39,6 +76,8 @@ spec:
         - mountPath: /opt/application/logs
           name: data
           subPath: logs
+        - mountPath: /music
+          name: synology-music
         livenessProbe:
           httpGet:
             path: /api/health
@@ -53,6 +92,9 @@ spec:
       - name: data
         persistentVolumeClaim:
           claimName: gold
+      - name: synology-music
+        persistentVolumeClaim:
+          claimName: synology-music
 
 ---
 apiVersion: v1

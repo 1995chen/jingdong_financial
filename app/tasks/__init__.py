@@ -88,6 +88,16 @@ def init_celery(config: Config):
                 'queue': f'{config.PROJECT_NAME}-{config.RUNTIME_ENV}-beat-queue'
             }
         },
+        # 同步播放列表
+        f'{schedule_task_root}.music_task.sync_play_list': {
+            'task': f'{schedule_task_root}.music_task.sync_play_list',
+            'args': (),
+            'schedule': 600,
+            'options': {
+                # 该定时任务会被调度到这个队列
+                'queue': f'{config.PROJECT_NAME}-{config.RUNTIME_ENV}-beat-queue'
+            }
+        },
     }
 
     logger.info(

@@ -107,6 +107,9 @@ class Config:
     DUPLICATE_NOTIFY_TIME_LIMIT: int = 90
     # 设置同类型通知重复推送多少次
     DUPLICATE_NOTIFY_TIMES: int = 3
+    # youtube music download
+    YOUTUBE_PLAY_LIST: str = ""
+    YOUTUBE_MUSIC_DIR: str = "/music"
 
 
 class MainDBSession(scoped_session, Session):

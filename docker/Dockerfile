@@ -1,6 +1,10 @@
 FROM 1995chen/python:3.6.8-dcf3637
 MAINTAINER liang.chen
 
+RUN apt-get update -y && apt-get install -y \
+    ffmpeg \
+    vim \
+ && rm -rf /var/lib/apt/lists/*
 # 拷贝配置文件
 COPY docker/app.conf /etc/supervisor/conf.d/
 # 拷贝日志文件配置
