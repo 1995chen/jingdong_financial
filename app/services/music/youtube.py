@@ -214,7 +214,7 @@ class YouTubeMusic(object):
         """
         get song meta by song name
         """
-        ytmusic = YTMusic()
+        ytmusic = YTMusic(language='zh_CN')
         details = ytmusic.get_song(videoId=video_id)
 
         # check if error occured
