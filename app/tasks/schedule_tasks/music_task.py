@@ -17,6 +17,7 @@ def sync_play_list():
     """
     黄金价格上涨提醒
     """
+    logger.info(f'start run sync_play_list....')
     # 获取配置
     config: Config = inject.instance(Config)
     YouTubeMusic(dst_dir=config.YOUTUBE_MUSIC_DIR).download_playlist(config.YOUTUBE_PLAY_LIST)
