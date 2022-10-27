@@ -277,7 +277,7 @@ class YouTubeMusic(object):
                         title='歌曲同步成功',
                         description=(
                             f'播放列表: <div class="highlight">{playlist_name}</div>'
-                            f'歌曲名称: {config.RISE_TO_TARGET_PRICE}'
+                            f'歌曲名称: {song_meta.name}'
                         ),
                         url=song_url,
                     )
