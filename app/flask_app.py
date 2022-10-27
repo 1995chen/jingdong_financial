@@ -23,7 +23,8 @@ from app.resources import (
     test,
     user,
     config,
-    gold
+    gold,
+    music,
 )
 
 logger = template_logging.getLogger(__name__)
@@ -87,6 +88,7 @@ def bind_api(app):
         user.get_resources(),
         config.get_resources(),
         gold.get_resources(),
+        music.get_resources(),
     )
     for bp in blueprints:
         app.register_blueprint(bp)

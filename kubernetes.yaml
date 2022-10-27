@@ -66,7 +66,7 @@ spec:
         - name: HTTP_PROXY
           value: http://127.0.0.1:7610
         - name: HTTPS_PROXY
-          value: https://127.0.0.1:7610
+          value: http://127.0.0.1:7610
         - name: NO_PROXY
           value: "local.domain,*.local.domain,ms.jr.jd.com,*.jd.com"
         image: 1995chen/jingdong_financial:latest
