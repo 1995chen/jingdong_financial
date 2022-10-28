@@ -109,7 +109,15 @@ class Config:
     DUPLICATE_NOTIFY_TIMES: int = 3
     # youtube music download
     YOUTUBE_PLAY_LIST: str = ""
-    YOUTUBE_MUSIC_DIR: str = "/music"
+    # synology
+    SYNOLOGY_HOST: str = ""
+    SYNOLOGY_PORT: int = 5000
+    SYNOLOGY_USERNAME: str = ""
+    SYNOLOGY_PASSWORD: str = ""
+    SYNOLOGY_USE_SSL: bool = False
+    SYNOLOGY_CERT_VERIFY: bool = False
+    SYNOLOGY_DSM_VERSION: int = 6
+    SYNOLOGY_MUSIC_DIR: str = "/music"
 
 
 class MainDBSession(scoped_session, Session):
@@ -242,7 +250,11 @@ def bind_config(apollo_config: ApolloClient) -> Config:
     config_dict: Dict[str, Any] = dict()
     for _field in _fields:
         _v: Any = apollo_config.get_value(_field.name)
-        if _v:
+        if _v is not None:
+            # 处理bool
+            if _field.type == bool:
+                config_dict[_field.name] = _field.type(json.loads(str(_v).lower()))
+                continue
             # 类型转换
             config_dict[_field.name] = _field.type(_v)
     _config = from_dict(Config, config_dict)

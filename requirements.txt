@@ -34,3 +34,4 @@ mutagen==1.45.1
 ytmusicapi
 downloader-cli==0.3.3
 opencc-python-reimplemented==0.1.6
+synology-api==0.4.4

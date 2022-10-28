@@ -30,6 +30,7 @@ from mutagen.mp3 import MP3
 from ytmusicapi import YTMusic
 from downloader_cli.download import Download
 from work_wechat import WorkWeChat, MsgType, TextCard
+from synology_api.filestation import FileStation
 
 import template_logging
 
@@ -67,15 +68,8 @@ class MetaInfo:
 
 class YouTubeMusic(object):
 
-    def __init__(self, dst_dir: str):
-        self.dst_dir = dst_dir
+    def __init__(self):
         self.tmp_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'tmp')
-
-    @staticmethod
-    def clean_dir(patten: str):
-        for _s in glob.glob(patten):
-            os.remove(_s)
-            logger.debug('Removed "{}" from cache'.format(_s))
 
     @staticmethod
     def progress_handler(d):
@@ -238,64 +232,76 @@ class YouTubeMusic(object):
         # 获取配置
         config: Config = inject.instance(Config)
         wechat: WorkWeChat = inject.instance(WorkWeChat)
-
-        # 获得播放列表
-        ydl_opts_cp = copy.deepcopy(ydl_opts)
-        ydl_opts_cp.update({
-            'format': 'bestaudio/best',
-            'dump_single_json': True,
-            'extract_flat': True,
-        })
-        # extract the info now
-        rsp = yt_dlp.YoutubeDL(ydl_opts_cp).extract_info(url, False)
-        playlist_name: str = rsp["title"]
-        for _i in rsp["entries"]:
-            try:
-                song_url: str = _i["url"].split("&")[0]
-                video_id: str = parse_qs(urlparse(url=song_url).query)["v"][0]
-                song_meta: MetaInfo = self.get_mp3_meta_info(video_id)
-                # 检查文件是否存在
-                # download song
-                dst_file: str = os.path.join(
-                    self.dst_dir,
-                    f"{song_meta.name}.mp3"
-                )
-                if os.path.exists(dst_file):
-                    logger.info(f"song({song_meta.name}) already exists, skip")
-                    continue
-                logger.info(f"start download song: {song_meta.name}")
-                song_path: str = self.download_song(song_url, song_meta)
-                logger.info(f"finished download song: {song_meta.name}")
-                # 将文件移动到共享盘
-                if not os.path.exists(dst_file):
-                    shutil.move(song_path, dst_file)
-                wechat.message_send(
-                    agentid=config.AGENT_ID,
-                    msgtype=MsgType.TEXTCARD,
-                    touser=('@all',),
-                    textcard=TextCard(
-                        title='歌曲同步成功',
-                        description=(
-                            f'播放列表: <div class="highlight">{playlist_name}</div>'
-                            f'歌曲名称: {song_meta.name}'
-                        ),
-                        url=song_url,
+        file_station: FileStation = FileStation(
+            ip_address=config.SYNOLOGY_HOST,
+            port=config.SYNOLOGY_PORT,
+            username=config.SYNOLOGY_USERNAME,
+            password=config.SYNOLOGY_PASSWORD,
+            secure=config.SYNOLOGY_USE_SSL,
+            cert_verify=config.SYNOLOGY_CERT_VERIFY,
+            dsm_version=config.SYNOLOGY_DSM_VERSION,
+        )
+        try:
+            # 获得播放列表
+            ydl_opts_cp = copy.deepcopy(ydl_opts)
+            ydl_opts_cp.update({
+                'format': 'bestaudio/best',
+                'dump_single_json': True,
+                'extract_flat': True,
+            })
+            # extract the info now
+            rsp = yt_dlp.YoutubeDL(ydl_opts_cp).extract_info(url, False)
+            playlist_name: str = rsp["title"]
+            for _i in rsp["entries"]:
+                try:
+                    song_url: str = _i["url"].split("&")[0]
+                    video_id: str = parse_qs(urlparse(url=song_url).query)["v"][0]
+                    song_meta: MetaInfo = self.get_mp3_meta_info(video_id)
+                    # 检查文件是否存在
+                    dst_file: str = os.path.join(
+                        config.SYNOLOGY_MUSIC_DIR,
+                        f"{song_meta.name}.mp3"
                     )
-                )
-            except Exception:
-                logger.warning(f"failed to download song: {_i['title']}", exc_info=True)
-            finally:
-                # clean tmp file
-                music_tmp: str = os.path.join(
-                    self.tmp_dir,
-                    'music',
-                )
-                if os.path.exists(music_tmp):
-                    YouTubeMusic.clean_dir(
-                        os.path.join(
-                            music_tmp, '*'
+                    file_info = file_station.get_file_info(dst_file)
+                    if (
+                            file_info['data']['files'][0].get('additional') and
+                            file_info['data']['files'][0]['additional'].get('real_path')
+                    ):
+                        logger.info(f"song({song_meta.name}) already exists, skip")
+                        continue
+                    logger.info(f"start download song: {song_meta.name}")
+                    song_path: str = self.download_song(song_url, song_meta)
+                    logger.info(f"finished download song: {song_meta.name}")
+                    # 上传文件到群晖
+                    upload_result = file_station.upload_file(dst_file, song_path)
+                    if upload_result == "Upload Complete":
+                        wechat.message_send(
+                            agentid=config.AGENT_ID,
+                            msgtype=MsgType.TEXTCARD,
+                            touser=('@all',),
+                            textcard=TextCard(
+                                title='歌曲同步成功',
+                                description=(
+                                    f'播放列表: <div class="highlight">{playlist_name}</div>'
+                                    f'歌曲名称: {song_meta.name}'
+                                ),
+                                url=song_url,
+                            )
                         )
+                except Exception:
+                    logger.warning(f"failed to download song: {_i['title']}", exc_info=True)
+                finally:
+                    # clean music cache dir
+                    music_tmp: str = os.path.join(
+                        self.tmp_dir,
+                        'music',
                     )
+                    shutil.rmtree(music_tmp, ignore_errors=True)
+        except Exception:
+            logger.error("download playlist error", exc_info=True)
+        finally:
+            # 注销登录
+            file_station.logout()
 
     def download_song(self, url: str, song_meta: MetaInfo) -> str:
         """

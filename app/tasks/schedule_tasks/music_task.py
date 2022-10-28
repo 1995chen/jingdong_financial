@@ -20,5 +20,5 @@ def sync_play_list():
     logger.info(f'start run sync_play_list....')
     # 获取配置
     config: Config = inject.instance(Config)
-    YouTubeMusic(dst_dir=config.YOUTUBE_MUSIC_DIR).download_playlist(config.YOUTUBE_PLAY_LIST)
+    YouTubeMusic().download_playlist(config.YOUTUBE_PLAY_LIST)
     logger.info(f'run sync_play_list done')
