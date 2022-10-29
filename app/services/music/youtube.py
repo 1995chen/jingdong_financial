@@ -273,7 +273,7 @@ class YouTubeMusic(object):
                     song_path: str = self.download_song(song_url, song_meta)
                     logger.info(f"finished download song: {song_meta.name}")
                     # 上传文件到群晖
-                    upload_result = file_station.upload_file(dst_file, song_path)
+                    upload_result = file_station.upload_file(config.SYNOLOGY_MUSIC_DIR, song_path)
                     if upload_result == "Upload Complete":
                         wechat.message_send(
                             agentid=config.AGENT_ID,
