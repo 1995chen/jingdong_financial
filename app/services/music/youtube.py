@@ -270,7 +270,13 @@ class YouTubeMusic(object):
                         logger.info(f"song({song_meta.name}) already exists, skip")
                         continue
                     logger.info(f"start download song: {song_meta.name}")
-                    song_path: str = self.download_song(song_url, song_meta)
+                    download_path: str = self.download_song(song_url, song_meta)
+                    # 重命名文件
+                    song_path: str = os.path.join(
+                        os.path.dirname(download_path),
+                        f"{song_meta.name}.mp3"
+                    )
+                    shutil.move(download_path, song_path)
                     logger.info(f"finished download song: {song_meta.name}")
                     # 上传文件到群晖
                     upload_result = file_station.upload_file(config.SYNOLOGY_MUSIC_DIR, song_path)
@@ -310,7 +316,7 @@ class YouTubeMusic(object):
         :param song_meta: song meta
         :return: song path
         """
-        _song_name: str = song_meta.name + '.' + "mp3"
+        _song_name: str = str(uuid4()) + '.' + "mp3"
 
         # The directory where we will download to.
         download_dir = os.path.join(self.tmp_dir, 'music')
