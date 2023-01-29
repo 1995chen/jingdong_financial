@@ -4,7 +4,7 @@
 youtube music module
 """
 
-import glob
+import re
 import sys
 import os
 import copy
@@ -257,24 +257,26 @@ class YouTubeMusic(object):
                     song_url: str = _i["url"].split("&")[0]
                     video_id: str = parse_qs(urlparse(url=song_url).query)["v"][0]
                     song_meta: MetaInfo = self.get_mp3_meta_info(video_id)
+                    # 优化歌曲文件名[替换目录中不允许出现的字符]
+                    rename_music_name: str = re.sub(r"[\/\\\:\*\?\"\<\>\|]", "_", song_meta.name)
                     # 检查文件是否存在
                     dst_file: str = os.path.join(
                         config.SYNOLOGY_MUSIC_DIR,
-                        f"{song_meta.name}.mp3"
+                        f"{rename_music_name}.mp3"
                     )
                     file_info = file_station.get_file_info(dst_file)
                     if (
                             file_info['data']['files'][0].get('additional') and
                             file_info['data']['files'][0]['additional'].get('real_path')
                     ):
-                        logger.info(f"song({song_meta.name}) already exists, skip")
+                        logger.info(f"song({rename_music_name}) already exists, skip")
                         continue
                     logger.info(f"start download song: {song_meta.name}")
                     download_path: str = self.download_song(song_url, song_meta)
                     # 重命名文件
                     song_path: str = os.path.join(
                         os.path.dirname(download_path),
-                        f"{song_meta.name}.mp3"
+                        f"{rename_music_name}.mp3"
                     )
                     shutil.move(download_path, song_path)
                     logger.info(f"finished download song: {song_meta.name}")
