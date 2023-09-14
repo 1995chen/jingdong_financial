@@ -4,12 +4,12 @@
 import json
 import sys
 import os
-from typing import Dict, Any, List
+from typing import Dict, Any, List, Type
 from dataclasses import dataclass, Field, field
 
 import template_logging
 from dacite import from_dict
-from dacite.dataclasses import get_fields
+from dacite.dataclasses import get_fields, T
 from inject import autoparams
 from redis import StrictRedis
 from celery import Celery
@@ -22,10 +22,18 @@ from template_migration import Migration
 from template_json_encoder import TemplateJSONEncoder
 from template_apollo import ApolloClient
 from work_wechat import WorkWeChat
+from dynaconf import Dynaconf
 
 from app.constants.enum import SysCMD
 
 logger = template_logging.getLogger(__name__)
+
+
+@dataclass
+class ConfigItem:
+    """
+    所有子配置的基类
+    """
 
 
 @dataclass
@@ -116,7 +124,7 @@ class Config:
     SYNOLOGY_PASSWORD: str = ""
     SYNOLOGY_USE_SSL: bool = False
     SYNOLOGY_CERT_VERIFY: bool = False
-    SYNOLOGY_DSM_VERSION: int = 6
+    SYNOLOGY_DSM_VERSION: int = 7
     SYNOLOGY_MUSIC_DIR: str = "/music"
 
 
@@ -245,7 +253,7 @@ def init_redis_session(config: Config) -> CacheRedis:
 
 
 @autoparams()
-def bind_config(apollo_config: ApolloClient) -> Config:
+def bind_config_from_apollo(apollo_config: ApolloClient) -> Config:
     _fields: List[Field] = get_fields(Config)
     config_dict: Dict[str, Any] = dict()
     for _field in _fields:
@@ -261,6 +269,36 @@ def bind_config(apollo_config: ApolloClient) -> Config:
     return _config
 
 
+def bind_config_from_file(config_cls: Type[T] = Config) -> T:
+    # 获取配置路径[在测试得时候可以覆盖该环境变量指定配置文件路径]
+    config_dir: str = os.getenv("CONFIG_PATH", os.path.join(Config.PROJECT_PATH, "configs"))
+    config_file: str = os.path.join(config_dir, "settings.yaml")
+    # 加载配置
+    settings = Dynaconf(
+        settings_files=[
+            config_file,
+        ],
+        environments=True,
+        load_dotenv=True,
+    )
+    _fields: List[Field] = get_fields(config_cls)
+    config_dict: Dict[str, Any] = {}
+    for _field in _fields:
+        # 配置不存在, 则忽略
+        _v: Any = settings.get(_field.name.upper())
+        if _v is not None:
+            # 子配置转换
+            if not isinstance(_field.type, type) or issubclass(_field.type, ConfigItem):
+                config_dict[_field.name] = _v
+                continue
+            # 类型转换
+            if isinstance(_field.type, type):
+                config_dict[_field.name] = _field.type(_v)
+
+    _config: T = from_dict(config_cls, config_dict)
+    return _config
+
+
 @autoparams()
 def init_work_wechat(config: Config) -> WorkWeChat:
     return WorkWeChat(corpid=config.CORP_ID, corpsecret=config.CORP_SECRET)
@@ -268,10 +306,11 @@ def init_work_wechat(config: Config) -> WorkWeChat:
 
 def bind(binder):
     from app.tasks import init_celery
-    # 初始化阿波罗
-    binder.bind_to_constructor(ApolloClient, init_apollo_client)
+    # 初始化apollo
+    # binder.bind_to_constructor(ApolloClient, init_apollo_client)
     # 初始化配置
-    binder.bind_to_constructor(Config, bind_config)
+    # binder.bind_to_constructor(Config, bind_config_from_apollo)
+    binder.bind_to_constructor(Config, bind_config_from_file)
     # 初始化celery
     binder.bind_to_constructor(Celery, init_celery)
     # 初始化主库
