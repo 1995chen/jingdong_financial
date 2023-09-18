@@ -5,34 +5,47 @@ default:
   # export DYNACONF_<config_name>= '{item=1234}'
   # for merge
   # export DYNACONF_<config_name>= '@merge {item=1234}'
-  API_PREFIX: '/api'
+  # OAuth配置
+  APP_ROOT_URI: "https://gold.local.domain"
+  APP_FRONTEND_URI: "https://gold.local.domain"
+  APP_AUTH_PATH: "/api/login"
+  APP_LOGOUT_PATH: "/api/logout"
+  JWT_SECRET_KEY: ''
+  OAUTH2_CLIENT_ID: 'jingdong_financial'
+  OAUTH2_CLIENT_SECRET: ''
+  OAUTH2_AUTHORIZATION_ENDPOINT: 'https://sso.local.domain/auth/realms/production/protocol/openid-connect/auth'
+  OAUTH2_TOKEN_ENDPOINT: 'https://sso.local.domain/auth/realms/production/protocol/openid-connect/token'
+  OAUTH2_USERINFO_ENDPOINT: 'https://sso.local.domain/auth/realms/production/protocol/openid-connect/userinfo'
+  # 中间件配置
   REDIS_URL: '@format {env[REDIS_URL]}'
   SQLALCHEMY_DATABASE_URI: '@format {env[SQLALCHEMY_DATABASE_URI]}'
   CELERY_BROKER: '@format {env[CELERY_BROKER]}'
   CELERY_BACKEND: '@format {env[CELERY_BACKEND]}'
   REDBEAT_REDIS_URL: '@format {env[REDBEAT_REDIS_URL]}'
+  # 企业微信配置
   CORP_ID: '@format {env[CORP_ID]}'
   CORP_SECRET: '@format {env[CORP_SECRET]}'
   AGENT_ID: '@format {env[AGENT_ID]}'
+  # 京东金融-金价配置
   JD_FINANCE_API_URL: "https://ms.jr.jd.com/gw/generic/hj/h5/m/latestPrice"
   JD_FINANCE_API_HEADERS: '{"referer":"https://m.jdjygold.com/finance-gold/msjgold/homepage?orderSource=7","host":"ms.jr.jd.com"}'
   JD_FINANCE_API_PARAMS: '{}'
   # 样本数量[用于计算上涨下跌幅度]
-  SAMPLE_COUNT: 20
+  SAMPLE_COUNT: 40
   # 上涨幅度超过该值通知[金额]
-  TARGET_RISE_PRICE: 2.0
+  TARGET_RISE_PRICE: '@format {env[TARGET_RISE_PRICE]}'
   # 下跌幅度超过该值通知[金额]
-  TARGET_FALL_PRICE: 2.0
+  TARGET_FALL_PRICE: '@format {env[TARGET_FALL_PRICE]}'
   # 金价高于该值通知[具体价格]
-  RISE_TO_TARGET_PRICE: 400.0
+  RISE_TO_TARGET_PRICE: '@format {env[RISE_TO_TARGET_PRICE]}'
   # 金价低于该值通知[具体价格]
-  FALL_TO_TARGET_PRICE: 365.0
+  FALL_TO_TARGET_PRICE: '@format {env[FALL_TO_TARGET_PRICE]}'
   # 设置同类型通知在多长时间范围内限制重复推送次数[秒]
   DUPLICATE_NOTIFY_TIME_LIMIT: 90
   # 设置同类型通知重复推送多少次
   DUPLICATE_NOTIFY_TIMES: 3
-  # youtube music download
-  YOUTUBE_PLAY_LIST: ""
+  # 音乐同步
+  YOUTUBE_PLAY_LIST: "https://music.youtube.com/playlist?list=PLZAE9aF6H86HZUSFf30crtLm22UiaoVrX"
   # synology
   SYNOLOGY_HOST: '@format {env[SYNOLOGY_HOST]}'
   SYNOLOGY_PORT: 5000
