@@ -23,7 +23,7 @@ sentry_sdk==1.4.3
 celery-redbeat==2.0.0
 sqlalchemy_utils==0.37.8
 python-redis-lock==3.7.0
-WorkWeChatSDK==20200430
+git+https://github.com/softpeng/WorkWeChatSDK.git
 pymannkendall==1.4.2
 itunespy==1.6.0
 musicbrainzngs==0.7.1
