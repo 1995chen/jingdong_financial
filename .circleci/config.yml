@@ -36,7 +36,7 @@ jobs:
 
   run_unittest:
     docker:
-      - image: 1995chen/python:3.6.8-0.0.1
+      - image: 1995chen/python:3.8.11-latest
         auth:
           username: $DOCKER_USER
           password: $DOCKER_PASS
@@ -65,7 +65,7 @@ jobs:
       - attach_workspace:
           at: /root
       - setup_remote_docker:
-          version: 19.03.13
+          version: 20.10.14
       - run:
           name: Build Image
           command: |
@@ -93,7 +93,7 @@ jobs:
       - attach_workspace:
           at: /root
       - setup_remote_docker:
-          version: 19.03.13
+          version: 20.10.14
       - run:
           name: Load archived Docker image
           command: docker load -i image.tar
