@@ -48,7 +48,7 @@ default:
   YOUTUBE_PLAY_LIST: "https://music.youtube.com/playlist?list=PLZAE9aF6H86HZUSFf30crtLm22UiaoVrX"
   # synology
   SYNOLOGY_HOST: '@format {env[SYNOLOGY_HOST]}'
-  SYNOLOGY_PORT: 5000
+  SYNOLOGY_PORT: '@format {env[SYNOLOGY_PORT]}'
   SYNOLOGY_USERNAME: '@format {env[SYNOLOGY_USERNAME]}'
   SYNOLOGY_PASSWORD: '@format {env[SYNOLOGY_PASSWORD]}'
   SYNOLOGY_USE_SSL: false
