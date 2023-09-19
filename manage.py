@@ -38,8 +38,10 @@ def cli():
             SysCMD.RUN_API_SERVER, SysCMD.RUN_TEST_SERVER, SysCMD.RUN_BEAT,
             SysCMD.RUN_BEAT_WORKER, SysCMD.RUN_CUSTOM_WORKER
     ):
-        apollo_client: ApolloClient = inject.instance(ApolloClient)
-        apollo_client.start()
+        # 暂时关闭apollo
+        # apollo_client: ApolloClient = inject.instance(ApolloClient)
+        # apollo_client.start()
+        pass
     # 加🔒, 执行migrate脚本,只执行一次
     lock_key: str = f"migrate-lock:{config.PROJECT_NAME}-{config.RUNTIME_ENV}"
     # 获取redis
