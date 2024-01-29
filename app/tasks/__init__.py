@@ -98,6 +98,16 @@ def init_celery(config: Config):
                 'queue': f'{config.PROJECT_NAME}-{config.RUNTIME_ENV}-beat-queue'
             }
         },
+        # 医院预约挂号
+        f'{schedule_task_root}.hospital_reserve_task.reserve_notify_task': {
+            'task': f'{schedule_task_root}.hospital_reserve_task.reserve_notify_task',
+            'args': (),
+            'schedule': 600,
+            'options': {
+                # 该定时任务会被调度到这个队列
+                'queue': f'{config.PROJECT_NAME}-{config.RUNTIME_ENV}-beat-queue'
+            }
+        },
     }
 
     logger.info(

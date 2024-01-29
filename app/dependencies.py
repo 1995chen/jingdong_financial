@@ -126,6 +126,13 @@ class Config:
     SYNOLOGY_CERT_VERIFY: bool = False
     SYNOLOGY_DSM_VERSION: int = 7
     SYNOLOGY_MUSIC_DIR: str = "/music"
+    # 预约挂号
+    RESERVE_APP_ID: int = 501107
+    RESERVE_DEPT_CODES: str = ""
+    RESERVE_DOCTOR_WORK_NUMS: str = ""
+    RESERVE_REGISTER_TYPE: str = "1,2,5,6,7,9,I,J,M,K,W,Y,R,8"
+    RESERVE_APPOINTMENT_TYPE: str = "1,2,5,6,7,9,I,J,M,K,W,Y,R,8"
+    RESERVE_PRICE_LIMIT: int = 0
 
 
 class MainDBSession(scoped_session, Session):
