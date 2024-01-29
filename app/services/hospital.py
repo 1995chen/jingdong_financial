@@ -33,9 +33,11 @@ def reserve_notify() -> None:
 
     app_id = config.RESERVE_APP_ID
     doctor_work_nums = config.RESERVE_DOCTOR_WORK_NUMS.split(",")
-    doctor_work_nums.remove("")
+    if "" in doctor_work_nums:
+        doctor_work_nums.remove("")
     dept_code_list = config.RESERVE_DEPT_CODES.split(",")
-    dept_code_list.remove("")
+    if "" in dept_code_list:
+        dept_code_list.remove("")
 
     url = f"https://api.cmsfg.com/api/appointment/Scheduling?AppId={app_id}"
     for doctor_work_num in doctor_work_nums:
