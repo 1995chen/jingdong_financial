@@ -78,7 +78,7 @@ def reserve_notify() -> None:
                     logger.info(f"跳过非本次预约科室.")
                     continue
                 # 价格过滤
-                if _j["Price"] > price_limit:
+                if _j["Price"] > config.RESERVE_PRICE_LIMIT:
                     logger.info(f"跳过超预算的时间档期.")
                     continue
                 # 是否可预约
