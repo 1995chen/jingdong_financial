@@ -2,7 +2,7 @@
 
 
 import json
-from typing import Optional
+from typing import Optional, Tuple
 from datetime import datetime
 
 import inject
@@ -161,3 +161,5 @@ def reserve_notify() -> None:
                     ),
                 )
                 save_notify_times(notify_key, _notify_times)
+if __name__ == '__main__':
+    pass
