@@ -10,7 +10,7 @@ import requests
 import template_logging
 from work_wechat import WorkWeChat, MsgType, TextCard
 
-from app.dependencies import Config
+from app.dependencies import Config, Cache
 
 
 logger = template_logging.getLogger(__name__)
@@ -20,6 +20,49 @@ logger = template_logging.getLogger(__name__)
 Service 中不应该出现Schema
 理想情况下所有涉及参数校验均应该在dataclass中的__post_init__方法内完成
 """
+
+
+def get_notify_cache_key(notify_key: str) -> str:
+    """
+    @param: notify_key 通知类型
+    根据notify_key返回本次通知缓存key
+    """
+    # 获取配置
+    config: Config = inject.instance(Config)
+    return f"{config.PROJECT_NAME}-{config.RUNTIME_ENV}-{notify_key}"
+
+
+def skip_notify(notify_key: str) -> Tuple[bool, int]:
+    """
+    @param: notify_key 通知类型
+    判断是否需要跳过本次通知
+    """
+    # 获取cache
+    cache: Cache = inject.instance(Cache)
+    # 获取配置
+    config: Config = inject.instance(Config)
+    cache_key: str = get_notify_cache_key(notify_key)
+    # 获得重复推送次数
+    _cache_bytes: Optional[bytes] = cache.get_cache(cache_key)
+    _notify_times: int = int(_cache_bytes.decode()) if _cache_bytes else 0
+    if _notify_times >= config.RESERVE_DUPLICATE_NOTIFY_TIMES:
+        return True, _notify_times
+    return False, _notify_times
+
+
+def save_notify_times(notify_key: str, notify_times: int) -> None:
+    """
+    @param: notify_key 通知类型
+    @param: notify_times 当前重复通知多少次
+    保存重复通知次数
+    """
+    # 获取cache
+    cache: Cache = inject.instance(Cache)
+    # 获取配置
+    config: Config = inject.instance(Config)
+    cache_key: str = get_notify_cache_key(notify_key)
+    cache.store_cache(cache_key, notify_times, config.RESERVE_DUPLICATE_NOTIFY_TIME_LIMIT)
+
 
 
 def reserve_notify() -> None:
@@ -91,7 +134,13 @@ def reserve_notify() -> None:
                 price = _j["Price"]
                 location = _j["Location"]
                 dept_code = _j["DeptCode"]
-                # 提醒
+                # 同一次预约只提醒1次
+                notify_key = f"{doctor_work_num}#{dept_code}#{day}#{start_time}#{end_time}"
+                _skip, _notify_times = skip_notify(notify_key)
+                if _skip:
+                    logger.info(f"skip notify, _notify_times is {_notify_times}")
+                    continue
+                _notify_times = _notify_times + 1
                 wechat.message_send(
                     agentid=config.AGENT_ID,
                     msgtype=MsgType.TEXTCARD,
@@ -105,8 +154,10 @@ def reserve_notify() -> None:
                             f'地点: <div class="highlight">{location}</div>'
                             f'金额: <div class="highlight">{price}</div>'
                             f'医生: <div class="highlight">{doctor_name}</div>'
-                            f"职位: {doctor_level_name}"
+                            f'职位: <div class="highlight">{doctor_level_name}</div>'
+                            f"预约进度: {appointment}/{can_appointment}"
                         ),
                         url=f"https://api.cmsfg.com/app/hospital/{app_id}/index.html?state={app_id}#/DoctorSchedule?AppId={app_id}&DeptCode={dept_code}&RegisterType={config.RESERVE_REGISTER_TYPE}&AppointmentType={config.RESERVE_APPOINTMENT_TYPE}&Date={today}&DoctorWorkNum={doctor_work_num}",
                     ),
                 )
+                save_notify_times(notify_key, _notify_times)

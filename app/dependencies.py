@@ -133,6 +133,8 @@ class Config:
     RESERVE_REGISTER_TYPE: str = "1,2,5,6,7,9,I,J,M,K,W,Y,R,8"
     RESERVE_APPOINTMENT_TYPE: str = "1,2,5,6,7,9,I,J,M,K,W,Y,R,8"
     RESERVE_PRICE_LIMIT: int = 0
+    RESERVE_DUPLICATE_NOTIFY_TIMES: int = 1
+    RESERVE_DUPLICATE_NOTIFY_TIME_LIMIT: int = 7200
 
 
 class MainDBSession(scoped_session, Session):
