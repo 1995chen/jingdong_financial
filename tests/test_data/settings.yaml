@@ -1,0 +1,28 @@
+default:
+  algo_grpc_config:
+    algo_rpc_uri: '127.0.0.1:9000'
+    algo_rpc_timeout: 1
+
+development:
+  project_name: 'test_project'
+
+  es_datasource_config:
+    host: "local-es-endpoint"
+    port: 9200
+    max_retries: 10
+    timeout: 10
+    use_ssl: false
+
+  redis_datasource_config:
+    host: 'default_host'
+    port: 6379
+    database: 3
+
+  mysql_datasource_config:
+    username: "root"
+    password: "123456"
+    host: "default_host"
+    database: "db_test"
+    port: 3306
+  auth_config:
+    jwt_secret_key: 'test_jwt_secret_key'

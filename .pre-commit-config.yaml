@@ -1,0 +1,74 @@
+repos:
+
+  - repo: https://github.com/psf/black
+    rev: '25.1.0'
+    hooks:
+      - id: black
+        language_version: python3.11.0
+        args: [
+          "--config=pyproject.toml",
+        ]
+
+  - repo: https://github.com/hadialqattan/pycln
+    rev: 'v2.5.0'
+    hooks:
+      - id: pycln
+        args: [
+          "--config=pyproject.toml"
+        ]
+
+  - repo: https://github.com/pycqa/isort
+    rev: '6.0.1'
+    hooks:
+      - id: isort
+        files: "\\.(py)$"
+        args: [
+          "--sp=pyproject.toml"
+        ]
+
+  - repo: local
+    hooks:
+      - id: pylint
+        name: pylint
+        entry: pylint
+        language: system
+        types: [ python ]
+        args: [
+          "-rn",
+          "-sn",
+          "--rcfile=pyproject.toml",
+          "--load-plugins=pylint.extensions.docparams",
+        ]
+
+  - repo: https://github.com/pre-commit/mirrors-mypy
+    rev: 'v1.16.1'
+    hooks:
+      - id: mypy
+        additional_dependencies: [
+          "pydantic"
+        ]
+        exclude: ^(docker/|scripts/|tests/|protos/)
+        args: [
+          "--strict",
+          "--allow-any-generics",
+          "--allow-untyped-decorators",
+          "--config-file=pyproject.toml",
+        ]
+
+  - repo: local
+    hooks:
+      - id: pytest
+        name: pytest
+        stages: [ pre-commit ]
+        language: system
+        entry: pytest
+        types: [ python ]
+        pass_filenames: false
+        always_run: true
+        args: [
+          "-s",
+          "-v",
+          "--cov-config=pyproject.toml",
+          "--cov=.",
+          ".",
+        ]
