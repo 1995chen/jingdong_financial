@@ -7,10 +7,7 @@ youtube music bo
 
 from dataclasses import dataclass
 
-
-__all__ = [
-    "MetaInfo"
-]
+__all__ = ["MetaInfo"]
 
 
 @dataclass
