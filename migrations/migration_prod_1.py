@@ -1,29 +1,30 @@
 # -*- coding: UTF-8 -*-
 
+"""
+migration script
+"""
 
+import logging
 import os
+
 import inject
 
-import template_logging
-from template_transaction import CommitContext
+from infra.dependencies import MainRDB
 
-from app.dependencies import MainDBSession
-
-logger = template_logging.getLogger(__name__)
+logger = logging.getLogger(__name__)
 
 
-def init_migrate():
+def init_migrate() -> None:
     """
     具体要进行的操作
     该脚本是一个初始化migrate
     """
-    session = inject.instance(MainDBSession)
-    with CommitContext(session):
-        pass
+    with inject.instance(MainRDB).get_session() as session:
+        session.commit()
     logger.info("print_test success")
 
 
-def do():
+def do() -> None:
     """
     必须实现的do方法
     """

@@ -5,60 +5,69 @@ default:
   # export DYNACONF_<config_name>= '{item=1234}'
   # for merge
   # export DYNACONF_<config_name>= '@merge {item=1234}'
-  # OAuth配置
-  APP_ROOT_URI: "https://gold.local.domain"
-  APP_FRONTEND_URI: "https://gold.local.domain"
-  APP_AUTH_PATH: "/api/login"
-  APP_LOGOUT_PATH: "/api/logout"
-  JWT_SECRET_KEY: ''
-  OAUTH2_CLIENT_ID: 'jingdong_financial'
-  OAUTH2_CLIENT_SECRET: ''
-  OAUTH2_AUTHORIZATION_ENDPOINT: 'https://sso.local.domain/auth/realms/production/protocol/openid-connect/auth'
-  OAUTH2_TOKEN_ENDPOINT: 'https://sso.local.domain/auth/realms/production/protocol/openid-connect/token'
-  OAUTH2_USERINFO_ENDPOINT: 'https://sso.local.domain/auth/realms/production/protocol/openid-connect/userinfo'
   # 中间件配置
-  REDIS_URL: '@format {env[REDIS_URL]}'
-  SQLALCHEMY_DATABASE_URI: '@format {env[SQLALCHEMY_DATABASE_URI]}'
-  CELERY_BROKER: '@format {env[CELERY_BROKER]}'
-  CELERY_BACKEND: '@format {env[CELERY_BACKEND]}'
-  REDBEAT_REDIS_URL: '@format {env[REDBEAT_REDIS_URL]}'
+  MYSQL_DATASOURCE_CONFIG:
+    USERNAME: '@format {env[MAIN_RDB_USERNAME]}'
+    PASSWORD: '@format {env[MAIN_RDB_PASSWORD]}'
+    HOST: '@format {env[MAIN_RDB_HOST]}'
+    DATABASE: '@format {env[MAIN_RDB_DATABASE]}'
+    PORT: '@int @format {env[MAIN_RDB_PORT]}'
+  REDIS_DATASOURCE_CONFIG:
+    HOST: '@format {env[REDIS_HOST]}'
+    PORT: '@int @format {env[REDIS_PORT]}'
+    PASSWORD: '@format {env[REDIS_PASSWORD]}'
+    DATABASE: '@int @format {env[REDIS_DB]}'
+  CELERY_CONFIG:
+    CELERY_BROKER: '@format {env[CELERY_BROKER]}'
+    CELERY_BACKEND: '@format {env[CELERY_BACKEND]}'
+    CELERY_REDBEAT: '@format {env[CELERY_REDBEAT]}'
+    REDBEAT_LOCK_TIMEOUT: 60
+    BEAT_WORKER_NUM: 2
+    WORKER_NUM: 2
+    MAX_TASKS_PER_CHILD: 10
   # 企业微信配置
-  CORP_ID: '@format {env[CORP_ID]}'
-  CORP_SECRET: '@format {env[CORP_SECRET]}'
-  AGENT_ID: '@format {env[AGENT_ID]}'
-  # 京东金融-金价配置
-  JD_FINANCE_API_URL: "https://ms.jr.jd.com/gw/generic/hj/h5/m/latestPrice"
-  JD_FINANCE_API_HEADERS: '{"referer":"https://m.jdjygold.com/finance-gold/msjgold/homepage?orderSource=7","host":"ms.jr.jd.com"}'
-  JD_FINANCE_API_PARAMS: '{}'
-  # 样本数量[用于计算上涨下跌幅度]
-  SAMPLE_COUNT: 40
-  # 上涨幅度超过该值通知[金额]
-  TARGET_RISE_PRICE: '@format {env[TARGET_RISE_PRICE]}'
-  # 下跌幅度超过该值通知[金额]
-  TARGET_FALL_PRICE: '@format {env[TARGET_FALL_PRICE]}'
-  # 金价高于该值通知[具体价格]
-  RISE_TO_TARGET_PRICE: '@format {env[RISE_TO_TARGET_PRICE]}'
-  # 金价低于该值通知[具体价格]
-  FALL_TO_TARGET_PRICE: '@format {env[FALL_TO_TARGET_PRICE]}'
-  # 设置同类型通知在多长时间范围内限制重复推送次数[秒]
-  DUPLICATE_NOTIFY_TIME_LIMIT: 90
-  # 设置同类型通知重复推送多少次
-  DUPLICATE_NOTIFY_TIMES: 3
-  # 音乐同步
-  YOUTUBE_PLAY_LIST: "https://music.youtube.com/playlist?list=PLZAE9aF6H86HZUSFf30crtLm22UiaoVrX"
-  # synology
-  SYNOLOGY_HOST: '@format {env[SYNOLOGY_HOST]}'
-  SYNOLOGY_PORT: '@format {env[SYNOLOGY_PORT]}'
-  SYNOLOGY_USERNAME: '@format {env[SYNOLOGY_USERNAME]}'
-  SYNOLOGY_PASSWORD: '@format {env[SYNOLOGY_PASSWORD]}'
-  SYNOLOGY_USE_SSL: false
-  SYNOLOGY_CERT_VERIFY: false
-  SYNOLOGY_DSM_VERSION: 7
-  SYNOLOGY_MUSIC_DIR: "/music"
+  WECHAT_WORK_CONFIG:
+    CORP_ID: '@format {env[CORP_ID]}'
+    CORP_SECRET: '@format {env[CORP_SECRET]}'
+    AGENT_ID: '@int @format {env[AGENT_ID]}'
+  # 群晖配置
+  SYNOLOGY_CONFIG:
+    SYNOLOGY_HOST: '@format {env[SYNOLOGY_HOST]}'
+    SYNOLOGY_PORT: '@int @format {env[SYNOLOGY_PORT]}'
+    SYNOLOGY_USERNAME: '@format {env[SYNOLOGY_USERNAME]}'
+    SYNOLOGY_PASSWORD: '@format {env[SYNOLOGY_PASSWORD]}'
+    SYNOLOGY_USE_SSL: false
+    SYNOLOGY_CERT_VERIFY: false
+    SYNOLOGY_DSM_VERSION: 7
+  # 黄金配置
+  GOLD_CONFIG:
+    # 京东金融-金价配置
+    JD_FINANCE_API_URL: "https://ms.jr.jd.com/gw/generic/hj/h5/m/latestPrice"
+    JD_FINANCE_API_HEADERS: '{"referer":"https://m.jdjygold.com/finance-gold/msjgold/homepage?orderSource=7","host":"ms.jr.jd.com"}'
+    JD_FINANCE_API_PARAMS: '{}'
+    # 样本数量[用于计算上涨下跌幅度]
+    SAMPLE_COUNT: 40
+    # 上涨幅度超过该值通知[金额]
+    TARGET_RISE_PRICE: '@float @format {env[TARGET_RISE_PRICE]}'
+    # 下跌幅度超过该值通知[金额]
+    TARGET_FALL_PRICE: '@float @format {env[TARGET_FALL_PRICE]}'
+    # 金价高于该值通知[具体价格]
+    RISE_TO_TARGET_PRICE: '@float @format {env[RISE_TO_TARGET_PRICE]}'
+    # 金价低于该值通知[具体价格]
+    FALL_TO_TARGET_PRICE: '@float @format {env[FALL_TO_TARGET_PRICE]}'
+    # 设置同类型通知在多长时间范围内限制重复推送次数[秒]
+    DUPLICATE_NOTIFY_TIME_LIMIT: 90
+    # 设置同类型通知重复推送多少次
+    DUPLICATE_NOTIFY_TIMES: 3
+  # 油管订阅
+  YOUTUBE_SUBSCRIBE_LIST:
+    - PATH: "/homes/chenliang/music"
+      PLAYLIST: "https://music.youtube.com/playlist?list=PLZAE9aF6H86HZUSFf30crtLm22UiaoVrX"
   # 预约挂号
-  RESERVE_APP_ID: '501107'
-  RESERVE_DEPT_CODES: '@format {env[RESERVE_DEPT_CODES]}'
-  RESERVE_DOCTOR_WORK_NUMS: '@format {env[RESERVE_DOCTOR_WORK_NUMS]}'
-  RESERVE_REGISTER_TYPE: '1,2,5,6,7,9,I,J,M,K,W,Y,R,8'
-  RESERVE_APPOINTMENT_TYPE: '1,2,5,6,7,9,I,J,M,K,W,Y,R,8'
-  RESERVE_PRICE_LIMIT: '@format {env[RESERVE_PRICE_LIMIT]}'
+  HOSPITAL_RESERVE:
+    - RESERVE_APP_ID: 501107
+      RESERVE_DEPT_CODES: "25"
+      RESERVE_DOCTOR_WORK_NUMS: "0561"
+      RESERVE_REGISTER_TYPE: "1,2,5,6,7,9,I,J,M,K,W,Y,R,8"
+      RESERVE_APPOINTMENT_TYPE: "1,2,5,6,7,9,I,J,M,K,W,Y,R,8"
+      RESERVE_PRICE_LIMIT: 120
