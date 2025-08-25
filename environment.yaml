@@ -36,6 +36,8 @@ dependencies:
       - downloader-cli==0.3.4
       - opencc-python-reimplemented
       - synology-api==0.7.1
+      - bs4==0.0.2
+      - pyyaml==6.0.2
       # for dev
       - pytest==8.4.1
       - pytest-cover==3.0.0

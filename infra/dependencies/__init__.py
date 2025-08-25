@@ -13,6 +13,8 @@ from work_wechat import WorkWeChat
 from infra.dependencies.auth import Auth, AuthStore, RequestStore, get_auth_by_config
 from infra.dependencies.celery import Celery, get_celery_by_config
 from infra.dependencies.config import (
+    ClashConfig,
+    ClashSubscribeIetm,
     Config,
     HospitalReserveConfig,
     YouTubeSubscribeConfig,
@@ -27,6 +29,8 @@ from infra.enums import RuntimeEnv
 __all__ = (
     "instances_bind",
     "Config",
+    "ClashSubscribeIetm",
+    "ClashConfig",
     "HospitalReserveConfig",
     "YouTubeSubscribeConfig",
     "Celery",

@@ -117,6 +117,13 @@ def get_celery_by_config(app_name: str, config: CeleryConfig, env: RuntimeEnv) -
             "schedule": 600,
             "options": {"queue": f"{app_name}-{env.value}-beat-queue"},
         },
+        # 刷新CLASH配置
+        f"{schedule_task_root}.refresh_clash_task.sync_clash_config": {
+            "task": f"{schedule_task_root}.refresh_clash_task.sync_clash_config",
+            "args": (),
+            "schedule": 600,
+            "options": {"queue": f"{app_name}-{env.value}-beat-queue"},
+        },
     }
 
     logger.info(

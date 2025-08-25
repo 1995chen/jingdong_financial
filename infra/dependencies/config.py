@@ -26,6 +26,8 @@ __all__ = (
     "Config",
     "HospitalReserveConfig",
     "YouTubeSubscribeConfig",
+    "ClashSubscribeIetm",
+    "ClashConfig",
     "bind_config",
 )
 
@@ -135,6 +137,32 @@ class GoldConfig:
 # do not check snake_case naming style
 # pylint: disable=C0103,R0902
 @dataclass
+class ClashSubscribeIetm:
+    """
+    Clash Subscribe Ietm
+    """
+
+    GROUP: str
+    URL: str
+    TYPE: str
+
+
+# do not check snake_case naming style
+# pylint: disable=C0103,R0902
+@dataclass
+class ClashConfig:
+    """
+    Clash Task Config
+    """
+
+    SUB_CONVERTER_HOST: str = "127.0.0.1"
+    SUB_CONVERTER_PORT: int = 25500
+    SUBSCRIBE_LIST: List[ClashSubscribeIetm] = field(default_factory=lambda: [])
+
+
+# do not check snake_case naming style
+# pylint: disable=C0103,R0902
+@dataclass
 class Config:
     """
     Configuration class, when the program starts,
@@ -196,6 +224,8 @@ class Config:
     YOUTUBE_SUBSCRIBE_LIST: List[YouTubeSubscribeConfig] = field(default_factory=lambda: [])
     # 预约挂号
     HOSPITAL_RESERVE: List[HospitalReserveConfig] = field(default_factory=lambda: [])
+    # CLASH订阅
+    CLASH_CONFIG: ClashConfig = field(default_factory=lambda: ClashConfig())
 
 
 def bind_config() -> Config:

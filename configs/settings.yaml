@@ -71,3 +71,14 @@ default:
       RESERVE_REGISTER_TYPE: "1,2,5,6,7,9,I,J,M,K,W,Y,R,8"
       RESERVE_APPOINTMENT_TYPE: "1,2,5,6,7,9,I,J,M,K,W,Y,R,8"
       RESERVE_PRICE_LIMIT: 120
+  # Clash订阅
+  CLASH_CONFIG:
+    SUB_CONVERTER_HOST: "127.0.0.1"
+    SUB_CONVERTER_PORT: 25500
+    SUBSCRIBE_LIST:
+      - GROUP: "airport_1"
+        URL: "https://sub1.smallstrawberry.com/api/v1/client/subscribe?token=39e2940902d7189d9b4e19dcc4daf75e"
+        TYPE: "direct"
+      - GROUP: "relit_1"
+        URL: "https://relit.no-mad-world.club/link/5B50chJPqsVMldZZ?clash=4&extend=1"
+        TYPE: "direct"
