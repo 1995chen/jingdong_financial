@@ -125,6 +125,8 @@ module = [
     "synology_api.*",
     "ytmusicapi.*",
     "pymannkendall.*",
+    "yaml.*",
+    "bs4.*",
 ]
 ignore_missing_imports = true
 implicit_reexport = true
