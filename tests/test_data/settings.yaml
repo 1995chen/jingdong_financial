@@ -1,28 +1,73 @@
 default:
-  algo_grpc_config:
-    algo_rpc_uri: '127.0.0.1:9000'
-    algo_rpc_timeout: 1
-
-development:
-  project_name: 'test_project'
-
-  es_datasource_config:
-    host: "local-es-endpoint"
-    port: 9200
-    max_retries: 10
-    timeout: 10
-    use_ssl: false
-
-  redis_datasource_config:
-    host: 'default_host'
-    port: 6379
-    database: 3
-
-  mysql_datasource_config:
-    username: "root"
-    password: "123456"
-    host: "default_host"
-    database: "db_test"
-    port: 3306
-  auth_config:
-    jwt_secret_key: 'test_jwt_secret_key'
+  # 通过环境变量覆盖配置
+  # https://www.dynaconf.com/merging/
+  # for override
+  # export DYNACONF_<config_name>= '{item=1234}'
+  # for merge
+  # export DYNACONF_<config_name>= '@merge {item=1234}'
+  # 中间件配置
+  MYSQL_DATASOURCE_CONFIG:
+    USERNAME: 'test_user'
+    PASSWORD: 'test_password'
+    HOST: '127.0.0.1'
+    DATABASE: 'test_db'
+    PORT: 3306
+  REDIS_DATASOURCE_CONFIG:
+    HOST: '127.0.0.1'
+    PORT: 6379
+    PASSWORD: 'test_password'
+    DATABASE: 0
+  CELERY_CONFIG:
+    CELERY_BROKER: 'redis://:test_password@127.0.0.1:6379/1'
+    CELERY_BACKEND: 'redis://:test_password@127.0.0.1:6379/2'
+    CELERY_REDBEAT: 'redis://:test_password@127.0.0.1:6379/3'
+    REDBEAT_LOCK_TIMEOUT: 60
+    BEAT_WORKER_NUM: 2
+    WORKER_NUM: 2
+    MAX_TASKS_PER_CHILD: 10
+  # 企业微信配置
+  WECHAT_WORK_CONFIG:
+    CORP_ID: 'test_id'
+    CORP_SECRET: 'test_secret'
+    AGENT_ID: 1
+  # 群晖配置
+  SYNOLOGY_CONFIG:
+    SYNOLOGY_HOST: '127.0.0.1'
+    SYNOLOGY_PORT: 5000
+    SYNOLOGY_USERNAME: 'test_user'
+    SYNOLOGY_PASSWORD: 'test_password'
+    SYNOLOGY_USE_SSL: false
+    SYNOLOGY_CERT_VERIFY: false
+    SYNOLOGY_DSM_VERSION: 7
+  # 黄金配置
+  GOLD_CONFIG:
+    # 京东金融-金价配置
+    JD_FINANCE_API_URL: "https://ms.jr.jd.com/gw/generic/hj/h5/m/latestPrice"
+    JD_FINANCE_API_HEADERS: '{"referer":"https://m.jdjygold.com/finance-gold/msjgold/homepage?orderSource=7","host":"ms.jr.jd.com"}'
+    JD_FINANCE_API_PARAMS: '{}'
+    # 样本数量[用于计算上涨下跌幅度]
+    SAMPLE_COUNT: 40
+    # 上涨幅度超过该值通知[金额]
+    TARGET_RISE_PRICE: 3.0
+    # 下跌幅度超过该值通知[金额]
+    TARGET_FALL_PRICE: 3.0
+    # 金价高于该值通知[具体价格]
+    RISE_TO_TARGET_PRICE: 800.0
+    # 金价低于该值通知[具体价格]
+    FALL_TO_TARGET_PRICE: 799.0
+    # 设置同类型通知在多长时间范围内限制重复推送次数[秒]
+    DUPLICATE_NOTIFY_TIME_LIMIT: 90
+    # 设置同类型通知重复推送多少次
+    DUPLICATE_NOTIFY_TIMES: 3
+  # 油管订阅
+  YOUTUBE_SUBSCRIBE_LIST:
+    - PATH: "/homes/chenliang/music"
+      PLAYLIST: "https://music.youtube.com/playlist?list=test_list"
+  # 预约挂号
+  HOSPITAL_RESERVE:
+    - RESERVE_APP_ID: 501107
+      RESERVE_DEPT_CODES: "25"
+      RESERVE_DOCTOR_WORK_NUMS: "0561"
+      RESERVE_REGISTER_TYPE: "1,2,5,6,7,9,I,J,M,K,W,Y,R,8"
+      RESERVE_APPOINTMENT_TYPE: "1,2,5,6,7,9,I,J,M,K,W,Y,R,8"
+      RESERVE_PRICE_LIMIT: 120

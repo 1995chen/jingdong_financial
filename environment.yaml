@@ -35,7 +35,7 @@ dependencies:
       - ytmusicapi==1.10.3
       - downloader-cli==0.3.4
       - opencc-python-reimplemented
-      - synology-api==0.1.7
+      - synology-api==0.7.1
       # for dev
       - pytest==8.4.1
       - pytest-cover==3.0.0
