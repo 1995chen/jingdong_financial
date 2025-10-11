@@ -30,6 +30,8 @@ proxy-groups:
       - 🎯 全球直连
       - ♻️ 自动选择
 rules:
+  - DOMAIN-KEYWORD,huggingface,🚀 节点选择
+  - DOMAIN-KEYWORD,docker,🚀 节点选择
   - DOMAIN-SUFFIX,gimy.ai,🎯 全球直连
   - DOMAIN-SUFFIX,1995chen.cn,🎯 全球直连
   - DOMAIN-SUFFIX,yaodingedu.com,🎯 全球直连
@@ -327,6 +329,7 @@ rules:
   - DOMAIN-SUFFIX,anthropic.com,🚀 节点选择
   - DOMAIN-SUFFIX,apache.org,🚀 节点选择
   - DOMAIN-SUFFIX,docker.com,🚀 节点选择
+  - DOMAIN-SUFFIX,grok.com,🚀 节点选择
   - DOMAIN-SUFFIX,elastic.co,🚀 节点选择
   - DOMAIN-SUFFIX,elastic.com,🚀 节点选择
   - DOMAIN-SUFFIX,gcr.io,🚀 节点选择
