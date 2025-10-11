@@ -34,31 +34,6 @@ jobs:
           paths:
             - project
 
-  run_unittest:
-    docker:
-      - image: 1995chen/python:3.8.11-latest
-        auth:
-          username: $DOCKER_USER
-          password: $DOCKER_PASS
-    steps:
-      # 挂载root目录
-      - attach_workspace:
-          at: /root
-      - run:
-          name: Install requirements.txt
-          command: |
-            pip install -r requirements.txt
-      - run:
-          name: Run Tests
-          command: |
-            cd tests
-            python -m unittest
-      # 持久化root目录
-      - persist_to_workspace:
-          root: /root
-          paths:
-            - project
-
   build_image:
     executor: docker-publisher
     steps:
@@ -71,7 +46,10 @@ jobs:
           command: |
             echo "$DOCKER_PASS" | docker login -u "$DOCKER_USER" --password-stdin
             docker build -f $(pwd)/docker/Dockerfile -t 1995chen/jingdong_financial:${CIRCLE_SHA1: 0: 7} $(pwd)
-            docker tag 1995chen/jingdong_financial:${CIRCLE_SHA1: 0: 7} 1995chen/jingdong_financial:latest
+      - run:
+          name: Test Docker image
+          command: |
+            docker run 1995chen/jingdong_financial:${CIRCLE_SHA1: 0: 7} make test
       - run:
           name: Archive Docker image
           command: |
@@ -79,6 +57,7 @@ jobs:
       - run:
           name: Push Image
           command: |
+            docker tag 1995chen/jingdong_financial:${CIRCLE_SHA1: 0: 7} 1995chen/jingdong_financial:latest
             docker push 1995chen/jingdong_financial:${CIRCLE_SHA1: 0: 7}
             docker push 1995chen/jingdong_financial:latest
       # 持久化root目录
@@ -108,12 +87,9 @@ workflows:
   staging:
     jobs:
       - checkout_code
-      - run_unittest:
-          requires:
-            - checkout_code
       - build_image:
           requires:
-            - run_unittest
+            - checkout_code
           context:
             - docker-hub-creds
   production:
@@ -125,15 +101,9 @@ workflows:
               ignore: /.*/
             tags:
               only: /.*/
-      - run_unittest:
-          requires:
-            - checkout_code
-          # this is calling the previously
-          filters:
-            <<: *filters-production
       - build_image:
           requires:
-            - run_unittest
+            - checkout_code
           context:
             - docker-hub-creds
           filters:
