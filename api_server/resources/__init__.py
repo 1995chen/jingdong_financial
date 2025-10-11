@@ -265,12 +265,13 @@ def bind_router(application: fastapi.FastAPI) -> None:
     """
     # prevent circle import
     # pylint: disable=C0415,R0401
-    from . import demo, gold
+    from . import demo, gold, music
 
     # Route list [can also be modified for automatic registration]
     routes: List[APIDefaultRouter] = []
     routes.extend(demo.get_routers())
     routes.extend(gold.get_routers())
+    routes.extend(music.get_routers())
 
     @application.get("/")
     async def index() -> RedirectResponse:

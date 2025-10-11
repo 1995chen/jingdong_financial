@@ -11,6 +11,7 @@ import logging
 import os
 from typing import Any, Dict, List
 from urllib.parse import quote
+from uuid import uuid4
 
 import inject
 import requests
@@ -18,7 +19,7 @@ import yaml
 from bs4 import BeautifulSoup
 from celery import Celery
 
-from infra.dependencies import ClashSubscribeIetm, Config
+from infra.dependencies import ClashSubscribeIetm, Config, Registry
 from infra.utils.network import check_port, get_with_retry
 
 logger = logging.getLogger(__name__)
@@ -122,9 +123,7 @@ def generate_subscribe_yaml(proxies: List[Dict[str, Any]]) -> None:
     proxy_names: List[str] = [_i["name"] for _i in proxies]
     for _g in template_value["proxy-groups"]:
         if _g["name"] in {
-            "🚀 节点选择",
-            "♻️ 自动选择",
-            "🐟 漏网之鱼",
+            "AutoChoose",
         }:
             _g["proxies"].extend(proxy_names)
     # 写文件
@@ -151,6 +150,7 @@ def get_from_github_free_ss(
         target_links.extend([i.text.strip() for i in soup.find_all("pre")])
     except Exception:  # pylint: disable=W0718
         logger.info(f"failed to get ss link, url is {url}")
+    logger.info(f"github free ss links: {target_links}")
     return target_links
 
 
@@ -159,6 +159,8 @@ def sync_clash_config() -> None:
     """
     同步CLASH配置
     """
+    registry: Registry = inject.instance(Registry)
+    registry.set_trace_id(str(uuid4()))
     logger.info("start run sync_clash_config....")
     # 获取配置
     config: Config = inject.instance(Config)
@@ -178,6 +180,12 @@ def sync_clash_config() -> None:
             full_proxies.extend(get_base64_proxies(_i.GROUP, _i.URL))
         logger.info(f"query {_i.GROUP}/{_i.URL}, full proxies count is {len(full_proxies)}.")
     # check node valid
-    full_proxies = [_i for _i in full_proxies if check_port(_i["server"], _i["port"])]
+    final_full_proxies: List[Dict[str, Any]] = []
+    for _j in full_proxies:
+        if len(_j["server"]) <= 15 and not check_port(_j["server"], _j["port"]):
+            continue
+        final_full_proxies.append(_j)
+    logger.info(f"final_full_proxies is {final_full_proxies}")
     # 将节点合并整合最终的配置
-    generate_subscribe_yaml(full_proxies)
+    if final_full_proxies:
+        generate_subscribe_yaml(final_full_proxies)

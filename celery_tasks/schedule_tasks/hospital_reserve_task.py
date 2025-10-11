@@ -5,11 +5,12 @@ hospital reserve task
 """
 
 import logging
+from uuid import uuid4
 
 import inject
 from celery import Celery
 
-from infra.dependencies import Config
+from infra.dependencies import Config, Registry
 from infra.services.hospital import reserve_notify
 
 logger = logging.getLogger(__name__)
@@ -21,6 +22,8 @@ def reserve_notify_task() -> None:
     """
     预约挂号提醒
     """
+    registry: Registry = inject.instance(Registry)
+    registry.set_trace_id(str(uuid4()))
     logger.info("start run reserve_notify_task....")
     config: Config = inject.instance(Config)
     for r in config.HOSPITAL_RESERVE:

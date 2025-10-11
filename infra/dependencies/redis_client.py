@@ -31,7 +31,7 @@ class RedisConfig:
     HOST: str = ""
     DATABASE: int = 0
     PORT: int = 6379
-    decode_responses: bool = True
+    DECODE_RESPONSES: bool = True
 
 
 class MainRedis(Redis):  # type: ignore[misc] # pylint: disable=R0901,W0223
@@ -51,7 +51,7 @@ def get_main_redis_by_config(config: RedisConfig) -> MainRedis:
         db=config.DATABASE,
         password=config.PASSWORD,
         **{
-            "decode_responses": config.decode_responses,
+            "decode_responses": config.DECODE_RESPONSES,
         },
     )
     return instance

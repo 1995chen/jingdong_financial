@@ -116,7 +116,8 @@ class YouTubeMusic:
         下载封面并存入相应目录
         """
         if not artwork_url:
-            raise Exception("empty artwork_url")  # pylint: disable=W0719
+            logger.warning(f"empty artwork_url: {artwork_url}")
+            return None
         logger.info(f"prepare download cover: {artwork_url}")
         cover_img: str = os.path.join(dst_path, f"{uuid4()}.jpg")
         try:
@@ -125,12 +126,12 @@ class YouTubeMusic:
             with open(cover_img, "wb") as f:
                 f.write(r.content)
             return cover_img
-        except Exception as e:
+        except Exception:  # pylint: disable=W0718
             # 清理目录
             if os.path.exists(cover_img):
                 os.remove(cover_img)
             logger.warning(f"failed to download image: {artwork_url}", exc_info=True)
-            raise e
+            return None
 
     @staticmethod
     def set_mp3_meta_data(song_meta: MetaInfo, song_path: str) -> None:
@@ -167,7 +168,7 @@ class YouTubeMusic:
             data.save()
 
         except Exception:  # pylint: disable=W0718
-            logger.error(f"error set song meta {song_meta}", exc_info=True)
+            logger.warning(f"error set song meta {song_meta}", exc_info=True)
         finally:
             if cover_path and os.path.exists(cover_path):
                 # remove the image
@@ -264,7 +265,9 @@ class YouTubeMusic:
                             ),
                         )
                 except Exception:  # pylint: disable=W0718
-                    logger.warning(f"failed to download song: {_i['title']}", exc_info=True)
+                    logger.warning(
+                        f"failed to download song: {_i['title']}, url: {song_url}", exc_info=True
+                    )
                 finally:
                     # clean music cache dir
                     music_tmp: str = os.path.join(

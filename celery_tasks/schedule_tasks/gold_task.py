@@ -7,6 +7,7 @@ gold price sync task
 import json
 import logging
 from typing import Any, Dict, List, Optional, Tuple
+from uuid import uuid4
 
 import inject
 import pymannkendall
@@ -16,7 +17,7 @@ from redis_lock import Lock
 from sqlalchemy import desc
 from work_wechat import MsgType, TextCard, WorkWeChat
 
-from infra.dependencies import Config, MainRDB, MainRedis
+from infra.dependencies import Config, MainRDB, MainRedis, Registry
 from infra.enums.gold import GoldPriceState
 from infra.models import GoldPrice
 
@@ -29,6 +30,8 @@ def sync_gold_price() -> None:
     """
     同步黄金价格
     """
+    registry: Registry = inject.instance(Registry)
+    registry.set_trace_id(str(uuid4()))
     # 获取配置
     config: Config = inject.instance(Config)
 
@@ -107,8 +110,8 @@ def skip_notify(notify_key: GoldPriceState) -> Tuple[bool, int]:
     config: Config = inject.instance(Config)
     cache_key: str = get_notify_cache_key(notify_key)
     # 获得重复推送次数
-    _cache_bytes: Optional[bytes] = redis_client.get(cache_key)
-    _notify_times: int = int(_cache_bytes.decode()) if _cache_bytes else 0
+    _cache_count: Optional[str] = redis_client.get(cache_key)
+    _notify_times: int = int(_cache_count) if _cache_count else 0
     if _notify_times >= config.GOLD_CONFIG.DUPLICATE_NOTIFY_TIMES:
         return True, _notify_times
     return False, _notify_times
@@ -133,6 +136,8 @@ def gold_price_remind() -> None:
     """
     黄金价格上涨提醒
     """
+    registry: Registry = inject.instance(Registry)
+    registry.set_trace_id(str(uuid4()))
     # 获取配置
     config: Config = inject.instance(Config)
     wechat: WorkWeChat = inject.instance(WorkWeChat)

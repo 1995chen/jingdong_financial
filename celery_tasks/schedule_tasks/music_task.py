@@ -6,11 +6,12 @@ music task
 """
 
 import logging
+from uuid import uuid4
 
 import inject
 from celery import Celery
 
-from infra.dependencies import Config
+from infra.dependencies import Config, Registry
 from infra.services.music.youtube import YouTubeMusic
 from infra.utils.network import check_port
 
@@ -23,6 +24,8 @@ def sync_play_list() -> None:
     """
     黄金价格上涨提醒
     """
+    registry: Registry = inject.instance(Registry)
+    registry.set_trace_id(str(uuid4()))
     logger.info("start run sync_play_list....")
     # 获取配置
     config: Config = inject.instance(Config)

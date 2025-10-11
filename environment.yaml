@@ -26,18 +26,19 @@ dependencies:
       - python-redis-lock==4.0.0
       - git+https://github.com/softpeng/WorkWeChatSDK.git
       - pymannkendall==1.4.3
-      - itunespy==1.6.1
-      - musicbrainzngs==0.7.1
-      - spotipy==2.25.1
-      - yt-dlp==2025.6.30
+      - itunespy
+      - musicbrainzngs
+      - spotipy
+      - yt-dlp
       - ffmpeg-python==0.2.0
       - mutagen==1.47.0
-      - ytmusicapi==1.10.3
+      - ytmusicapi
       - downloader-cli==0.3.4
       - opencc-python-reimplemented
       - synology-api==0.7.1
       - bs4==0.0.2
       - pyyaml==6.0.2
+      - supervisor==4.3.0
       # for dev
       - pytest==8.4.1
       - pytest-cover==3.0.0
