@@ -30,7 +30,7 @@ jobs:
             ls -al
       # 持久化root目录
       - persist_to_workspace:
-          root: /root
+          root: /home/circleci
           paths:
             - project
 
