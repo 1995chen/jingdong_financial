@@ -29,7 +29,9 @@ default:
   WECHAT_WORK_CONFIG:
     CORP_ID: 'test_id'
     CORP_SECRET: 'test_secret'
-    AGENT_ID: 1
+    GOLD_AGENT_ID: 1
+    HOSPITAL_AGENT_ID: 2
+    MUSIC_AGENT_ID: 3
   # 群晖配置
   SYNOLOGY_CONFIG:
     SYNOLOGY_HOST: '127.0.0.1'

@@ -252,7 +252,7 @@ class YouTubeMusic:
                     upload_result = file_station.upload_file(subscribe_config.PATH, song_path)
                     if upload_result == "Upload Complete":
                         wechat.message_send(
-                            agentid=config.WECHAT_WORK_CONFIG.AGENT_ID,
+                            agentid=config.WECHAT_WORK_CONFIG.MUSIC_AGENT_ID,
                             msgtype=MsgType.TEXTCARD,
                             touser=("@all",),
                             textcard=TextCard(

@@ -145,7 +145,7 @@ def reserve_notify(reserve_config: HospitalReserveConfig) -> None:
                     continue
                 _notify_times = _notify_times + 1
                 wechat.message_send(
-                    agentid=config.WECHAT_WORK_CONFIG.AGENT_ID,
+                    agentid=config.WECHAT_WORK_CONFIG.HOSPITAL_AGENT_ID,
                     msgtype=MsgType.TEXTCARD,
                     touser=("@all",),
                     textcard=TextCard(

@@ -238,7 +238,7 @@ def gold_price_remind() -> None:
             continue
         _notify_times = _notify_times + 1
         wechat.message_send(
-            agentid=config.WECHAT_WORK_CONFIG.AGENT_ID,
+            agentid=config.WECHAT_WORK_CONFIG.GOLD_AGENT_ID,
             msgtype=MsgType.TEXTCARD,
             touser=("@all",),
             textcard=_text_card,

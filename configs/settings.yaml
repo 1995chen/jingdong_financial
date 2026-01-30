@@ -29,7 +29,9 @@ default:
   WECHAT_WORK_CONFIG:
     CORP_ID: '@format {env[CORP_ID]}'
     CORP_SECRET: '@format {env[CORP_SECRET]}'
-    AGENT_ID: '@int @format {env[AGENT_ID]}'
+    GOLD_AGENT_ID: '@int @format {env[GOLD_AGENT_ID]}'
+    HOSPITAL_AGENT_ID: '@int @format {env[HOSPITAL_AGENT_ID]}'
+    MUSIC_AGENT_ID: '@int @format {env[MUSIC_AGENT_ID]}'
   # 群晖配置
   SYNOLOGY_CONFIG:
     SYNOLOGY_HOST: '@format {env[SYNOLOGY_HOST]}'
