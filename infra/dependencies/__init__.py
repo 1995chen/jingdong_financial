@@ -42,9 +42,24 @@ __all__ = (
     "AuthStore",
     "Registry",
     "Migration",
+    "GoldWorkWeChat",
+    "HospitalWorkWeChat",
+    "MusicWorkWeChat",
 )
 
 logger = logging.getLogger(__name__)
+
+
+class GoldWorkWeChat(WorkWeChat):  # type: ignore[misc]
+    """GoldWorkWeChat"""
+
+
+class HospitalWorkWeChat(WorkWeChat):  # type: ignore[misc]
+    """HospitalWorkWeChat"""
+
+
+class MusicWorkWeChat(WorkWeChat):  # type: ignore[misc]
+    """MusicWorkWeChat"""
 
 
 @autoparams()
@@ -88,12 +103,35 @@ def bind_auth(_config: Config) -> Auth:
 
 
 @autoparams()
-def init_work_wechat(_config: Config) -> WorkWeChat:
+def init_gold_work_wechat(_config: Config) -> GoldWorkWeChat:
     """
-    :return: WorkWeChat instance
+    :return: GoldWorkWeChat instance
     """
-    return WorkWeChat(
-        corpid=_config.WECHAT_WORK_CONFIG.CORP_ID, corpsecret=_config.WECHAT_WORK_CONFIG.CORP_SECRET
+    return GoldWorkWeChat(
+        corpid=_config.WECHAT_WORK_CONFIG.CORP_ID,
+        corpsecret=_config.WECHAT_WORK_CONFIG.GOLD_CORP_SECRET,
+    )
+
+
+@autoparams()
+def init_music_work_wechat(_config: Config) -> MusicWorkWeChat:
+    """
+    :return: MusicWorkWeChat instance
+    """
+    return MusicWorkWeChat(
+        corpid=_config.WECHAT_WORK_CONFIG.CORP_ID,
+        corpsecret=_config.WECHAT_WORK_CONFIG.MUSIC_CORP_SECRET,
+    )
+
+
+@autoparams()
+def init_hospital_work_wechat(_config: Config) -> HospitalWorkWeChat:
+    """
+    :return: HospitalWorkWeChat instance
+    """
+    return HospitalWorkWeChat(
+        corpid=_config.WECHAT_WORK_CONFIG.CORP_ID,
+        corpsecret=_config.WECHAT_WORK_CONFIG.HOSPITAL_CORP_SECRET,
     )
 
 
@@ -110,5 +148,7 @@ def instances_bind(binder: Binder) -> None:
     binder.bind_to_constructor(Migration, bind_migration)
     binder.bind_to_constructor(Auth, bind_auth)
     binder.bind_to_constructor(Registry, bind_registry)
-    binder.bind_to_constructor(WorkWeChat, init_work_wechat)
+    binder.bind_to_constructor(GoldWorkWeChat, init_gold_work_wechat)
+    binder.bind_to_constructor(MusicWorkWeChat, init_music_work_wechat)
+    binder.bind_to_constructor(HospitalWorkWeChat, init_hospital_work_wechat)
     logger.info("bind dependencies done!")

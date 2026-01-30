@@ -28,10 +28,12 @@ default:
   # 企业微信配置
   WECHAT_WORK_CONFIG:
     CORP_ID: '@format {env[CORP_ID]}'
-    CORP_SECRET: '@format {env[CORP_SECRET]}'
     GOLD_AGENT_ID: '@int @format {env[GOLD_AGENT_ID]}'
+    GOLD_CORP_SECRET: '@format {env[GOLD_CORP_SECRET]}'
     HOSPITAL_AGENT_ID: '@int @format {env[HOSPITAL_AGENT_ID]}'
+    HOSPITAL_CORP_SECRET: '@format {env[HOSPITAL_CORP_SECRET]}'
     MUSIC_AGENT_ID: '@int @format {env[MUSIC_AGENT_ID]}'
+    MUSIC_CORP_SECRET: '@format {env[MUSIC_CORP_SECRET]}'
   # 群晖配置
   SYNOLOGY_CONFIG:
     SYNOLOGY_HOST: '@format {env[SYNOLOGY_HOST]}'

@@ -12,9 +12,9 @@ from typing import Optional, Tuple
 
 import inject
 import requests
-from work_wechat import MsgType, TextCard, WorkWeChat
+from work_wechat import MsgType, TextCard
 
-from infra.dependencies import Config, HospitalReserveConfig, MainRedis
+from infra.dependencies import Config, HospitalReserveConfig, HospitalWorkWeChat, MainRedis
 
 logger = logging.getLogger(__name__)
 
@@ -72,7 +72,7 @@ def reserve_notify(reserve_config: HospitalReserveConfig) -> None:
     today = datetime.now().strftime("%Y-%m-%d")
     # 获取配置
     config: Config = inject.instance(Config)
-    wechat: WorkWeChat = inject.instance(WorkWeChat)
+    wechat: HospitalWorkWeChat = inject.instance(HospitalWorkWeChat)
 
     app_id = reserve_config.RESERVE_APP_ID
     doctor_work_nums = reserve_config.RESERVE_DOCTOR_WORK_NUMS.split(",")

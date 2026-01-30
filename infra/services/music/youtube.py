@@ -23,10 +23,10 @@ from mutagen.id3 import APIC, ID3, TALB, TIT2, TPE1
 from mutagen.mp3 import MP3
 from opencc import OpenCC
 from synology_api.filestation import FileStation
-from work_wechat import MsgType, TextCard, WorkWeChat
+from work_wechat import MsgType, TextCard
 from ytmusicapi import YTMusic
 
-from infra.dependencies import Config, YouTubeSubscribeConfig
+from infra.dependencies import Config, MusicWorkWeChat, YouTubeSubscribeConfig
 from infra.models.bo.music import MetaInfo
 
 logger = logging.getLogger(__name__)
@@ -202,7 +202,7 @@ class YouTubeMusic:
         """
         # 获取配置
         config: Config = inject.instance(Config)
-        wechat: WorkWeChat = inject.instance(WorkWeChat)
+        wechat: MusicWorkWeChat = inject.instance(MusicWorkWeChat)
         file_station: FileStation = FileStation(
             ip_address=config.SYNOLOGY_CONFIG.SYNOLOGY_HOST,
             port=config.SYNOLOGY_CONFIG.SYNOLOGY_PORT,

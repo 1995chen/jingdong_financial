@@ -15,9 +15,9 @@ import requests
 from celery import Celery
 from redis_lock import Lock
 from sqlalchemy import desc
-from work_wechat import MsgType, TextCard, WorkWeChat
+from work_wechat import MsgType, TextCard
 
-from infra.dependencies import Config, MainRDB, MainRedis, Registry
+from infra.dependencies import Config, GoldWorkWeChat, MainRDB, MainRedis, Registry
 from infra.enums.gold import GoldPriceState
 from infra.models import GoldPrice
 
@@ -140,7 +140,7 @@ def gold_price_remind() -> None:
     registry.set_trace_id(str(uuid4()))
     # 获取配置
     config: Config = inject.instance(Config)
-    wechat: WorkWeChat = inject.instance(WorkWeChat)
+    wechat: GoldWorkWeChat = inject.instance(GoldWorkWeChat)
 
     # 查询数据
     with inject.instance(MainRDB).get_session() as session:

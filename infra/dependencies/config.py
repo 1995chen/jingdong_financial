@@ -93,12 +93,13 @@ class WechatWorkConfig:
 
     # 企业微信 CORP_ID
     CORP_ID: str = ""
-    # 企业微信 CORP_SECRET
-    CORP_SECRET: str = ""
     # 企业微信应用 AGENT_ID
     GOLD_AGENT_ID: int = 1000002
+    GOLD_CORP_SECRET: str = ""
     MUSIC_AGENT_ID: int = 1000003
+    MUSIC_CORP_SECRET: str = ""
     HOSPITAL_AGENT_ID: int = 1000004
+    HOSPITAL_CORP_SECRET: str = ""
 
 
 # do not check snake_case naming style

@@ -28,10 +28,12 @@ default:
   # 企业微信配置
   WECHAT_WORK_CONFIG:
     CORP_ID: 'test_id'
-    CORP_SECRET: 'test_secret'
     GOLD_AGENT_ID: 1
+    GOLD_CORP_SECRET: 'test_secret'
     HOSPITAL_AGENT_ID: 2
+    HOSPITAL_CORP_SECRET: 'test_secret'
     MUSIC_AGENT_ID: 3
+    MUSIC_CORP_SECRET: 'test_secret'
   # 群晖配置
   SYNOLOGY_CONFIG:
     SYNOLOGY_HOST: '127.0.0.1'
